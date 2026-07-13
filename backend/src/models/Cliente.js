@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const clienteSchema = new mongoose.Schema({
-  codigo: { type: String, required: true, unique: true },
+  codigo: { type: String, unique: true },
   nombre: { type: String, required: true },
   telefono: { type: String, default: '' },
   email: { type: String, default: '' },
@@ -15,12 +15,11 @@ const clienteSchema = new mongoose.Schema({
 });
 
 // Auto-generate codigo if not provided
-clienteSchema.pre('save', async function(next) {
+clienteSchema.pre('save', async function() {
   if (!this.codigo) {
     const count = await mongoose.model('Cliente').countDocuments();
     this.codigo = 'BEJ-' + String(count + 1).padStart(4, '0');
   }
-  next();
 });
 
 module.exports = mongoose.model('Cliente', clienteSchema);
