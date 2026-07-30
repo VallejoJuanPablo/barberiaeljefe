@@ -7,7 +7,7 @@ const clienteSchema = new mongoose.Schema({
   email: { type: String, default: '' },
   membresia: {
     activa: { type: Boolean, default: false },
-    tipo: { type: String, enum: ['basica', 'premium', 'vip'], default: 'basica' },
+    tipo: { type: String, default: '' },
     fechaInicio: { type: Date },
     fechaFin: { type: Date }
   },
