@@ -1,121 +1,179 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { ClienteService } from '../../services/cliente.service';
 import { MembresiaCheck } from '../../models/cliente.model';
 
 @Component({
   selector: 'app-membresia-check',
   standalone: true,
-  imports: [FormsModule],
+  styles: [`
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&display=swap');
+
+    :host { display: block; }
+
+    .font-display { font-family: 'Playfair Display', serif; }
+
+    .gold { color: #c9a44c; }
+    .gold-soft { color: rgba(201,164,76,0.5); }
+    .gold-dim { color: rgba(201,164,76,0.25); }
+    .bg-card { background: #0c0c0c; }
+
+    .gold-border-subtle {
+      border: 1px solid rgba(201,164,76,0.18);
+    }
+
+    .card-shine {
+      position: relative;
+      overflow: hidden;
+    }
+    .card-shine::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(201,164,76,0.04), transparent);
+      animation: shine 5s ease-in-out infinite;
+    }
+    @keyframes shine {
+      0%, 100% { left: -100%; }
+      50% { left: 150%; }
+    }
+
+    .status-dot {
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    .ornament {
+      color: rgba(201,164,76,0.2);
+    }
+  `],
   template: `
-    <div class="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
+    <div class="min-h-screen bg-black flex flex-col items-center justify-center p-5 relative overflow-hidden">
 
-      <!-- Header -->
-      <div class="text-center mb-10">
-        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-800 border border-gray-700 mb-4">
-          <span class="text-4xl">✂️</span>
-        </div>
-        <h1 class="text-3xl font-bold text-white">Barbería <span class="text-amber-400">El Jefe</span></h1>
-        <p class="text-gray-400 mt-2">Consultá el estado de tu membresía</p>
-      </div>
+      <!-- Línea dorada superior -->
+      <div class="absolute top-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent 10%, rgba(201,164,76,0.4) 50%, transparent 90%);"></div>
 
-      <!-- Form de búsqueda -->
-      <div class="w-full max-w-md">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 shadow-2xl">
-          <label class="block text-sm font-medium text-gray-300 mb-2">Código de membresía</label>
-          <div class="flex gap-3">
-            <input
-              type="text"
-              [(ngModel)]="codigo"
-              (keydown.enter)="consultar()"
-              placeholder="Ej: BJF-0001"
-              class="flex-1 bg-gray-700 border border-gray-600 text-white placeholder-gray-500 px-4 py-3 rounded-xl focus:outline-none focus:border-amber-500 transition-colors font-mono tracking-wider text-center"
-            />
-            <button
-              (click)="consultar()"
-              [disabled]="!codigo.trim() || loading()"
-              class="px-5 py-3 bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              @if (loading()) {
-                <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                </svg>
-              } @else {
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              }
-            </button>
-          </div>
+      <div class="relative z-10 w-full max-w-md">
+
+        <!-- Logo -->
+        <div class="text-center mb-10">
+          <img src="logo.png" alt="El Jefe" class="w-44 mx-auto" />
         </div>
 
-        <!-- Resultado -->
-        @if (resultado()) {
-          <div
-            class="mt-6 rounded-2xl border-2 p-6 shadow-2xl transition-all"
-            [class]="resultado()!.activo ? 'bg-green-950 border-green-600' : 'bg-red-950 border-red-700'"
-          >
-            <!-- Icono + Estado -->
-            <div class="flex items-center gap-4 mb-5">
-              <div
-                class="w-16 h-16 rounded-full flex items-center justify-center text-3xl flex-shrink-0"
-                [class]="resultado()!.activo ? 'bg-green-900' : 'bg-red-900'"
-              >
-                {{ resultado()!.activo ? '✅' : '❌' }}
-              </div>
-              <div>
-                <p class="text-lg font-bold text-white">{{ resultado()!.nombre }}</p>
-                <p
-                  class="text-sm font-semibold uppercase tracking-wider"
-                  [class]="resultado()!.activo ? 'text-green-400' : 'text-red-400'"
-                >
-                  {{ resultado()!.activo ? 'Membresía ACTIVA' : 'Membresía INACTIVA' }}
-                </p>
-              </div>
+        <!-- Sin código: pantalla de bienvenida -->
+        @if (!codigoConsultado && !loading()) {
+          <div class="text-center space-y-6">
+            <div class="card-shine bg-card gold-border-subtle rounded-2xl p-8">
+              <div class="ornament text-3xl mb-4">&#10022;</div>
+              <p class="font-display text-lg text-white mb-2">Membresía</p>
+              <p class="text-sm" style="color: rgba(255,255,255,0.35);">
+                Escaneá el código QR de tu tarjeta para consultar el estado de tu membresía.
+              </p>
             </div>
 
-            <!-- Detalles -->
-            <div class="space-y-3 pt-4 border-t" [class]="resultado()!.activo ? 'border-green-800' : 'border-red-800'">
-              @if (resultado()!.activo) {
-                <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-400">Tipo de membresía</span>
-                  <span class="text-sm font-semibold text-white capitalize px-3 py-1 rounded-full bg-amber-900/50 text-amber-300 border border-amber-800">
-                    {{ resultado()!.tipo }}
-                  </span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-400">Válida hasta</span>
-                  <span class="text-sm font-semibold text-green-300">
-                    {{ formatearFecha(resultado()!.fechaFin) }}
-                  </span>
-                </div>
-              }
-              <div class="pt-2">
-                <p
-                  class="text-sm text-center py-2 px-4 rounded-lg"
-                  [class]="resultado()!.activo ? 'bg-green-900/40 text-green-300' : 'bg-red-900/40 text-red-300'"
-                >
-                  {{ resultado()!.mensaje }}
-                </p>
-              </div>
+            <div class="flex items-center justify-center gap-3">
+              <div class="h-px w-10" style="background: linear-gradient(90deg, transparent, rgba(201,164,76,0.2));"></div>
+              <span class="text-xs tracking-[0.2em] uppercase gold-dim">El Jefe</span>
+              <div class="h-px w-10" style="background: linear-gradient(90deg, rgba(201,164,76,0.2), transparent);"></div>
             </div>
           </div>
         }
 
-        <!-- Error -->
+        <!-- Loading -->
+        @if (loading()) {
+          <div class="card-shine bg-card gold-border-subtle rounded-2xl p-10 text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4" style="border: 1px solid rgba(201,164,76,0.25);">
+              <svg class="w-5 h-5 animate-spin gold" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+            </div>
+            <p class="text-sm tracking-wider gold-soft">Verificando membresía</p>
+          </div>
+        }
+
+        <!-- Resultado -->
+        @if (resultado()) {
+          <div class="card-shine bg-card gold-border-subtle rounded-2xl overflow-hidden">
+
+            <!-- Estado -->
+            <div class="px-7 py-4 flex items-center justify-between"
+                 [style.border-bottom]="resultado()!.activo
+                   ? '1px solid rgba(34,197,94,0.12)'
+                   : '1px solid rgba(239,68,68,0.12)'">
+              <div class="flex items-center gap-2.5">
+                <div class="w-2 h-2 rounded-full status-dot"
+                     [style.background]="resultado()!.activo ? '#22c55e' : '#ef4444'"></div>
+                <span class="text-xs font-semibold tracking-[0.15em] uppercase"
+                      [style.color]="resultado()!.activo ? '#22c55e' : '#ef4444'">
+                  {{ resultado()!.activo ? 'Activa' : 'Inactiva' }}
+                </span>
+              </div>
+              <span class="text-xs font-light" style="color: rgba(255,255,255,0.2);">
+                {{ codigoConsultado }}
+              </span>
+            </div>
+
+            <!-- Datos del miembro -->
+            <div class="px-7 py-7">
+              <p class="text-xs tracking-wider mb-1 gold-soft">Miembro</p>
+              <h2 class="font-display text-2xl text-white mb-7">{{ resultado()!.nombre }}</h2>
+
+              @if (resultado()!.activo) {
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm" style="color: rgba(255,255,255,0.35);">Plan</span>
+                    <span class="text-sm font-semibold tracking-wider uppercase gold">
+                      {{ resultado()!.tipo }}
+                    </span>
+                  </div>
+                  <div class="h-px" style="background: rgba(201,164,76,0.08);"></div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm" style="color: rgba(255,255,255,0.35);">Válida hasta</span>
+                    <span class="text-sm font-medium text-white">
+                      {{ formatearFecha(resultado()!.fechaFin) }}
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Mensaje -->
+            <div class="px-7 py-3.5" style="border-top: 1px solid rgba(201,164,76,0.06);">
+              <p class="text-xs text-center"
+                 [style.color]="resultado()!.activo ? 'rgba(34,197,94,0.5)' : 'rgba(239,68,68,0.5)'">
+                {{ resultado()!.mensaje }}
+              </p>
+            </div>
+          </div>
+        }
+
+        <!-- Error (código no encontrado) -->
         @if (errorMsg()) {
-          <div class="mt-6 bg-gray-800 border border-gray-700 rounded-2xl p-6 text-center">
-            <p class="text-4xl mb-3">🔍</p>
-            <p class="text-white font-medium">No encontramos esa membresía</p>
-            <p class="text-gray-400 text-sm mt-1">Verificá el código e intentá de nuevo</p>
+          <div class="card-shine bg-card gold-border-subtle rounded-2xl p-9 text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4"
+                 style="border: 1px solid rgba(201,164,76,0.12);">
+              <svg class="w-5 h-5" style="color: rgba(201,164,76,0.35);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+            </div>
+            <p class="text-sm text-white mb-1">{{ errorMsg() }}</p>
+            <p class="text-xs" style="color: rgba(255,255,255,0.2);">Verificá el código con la barbería</p>
           </div>
         }
       </div>
 
       <!-- Footer -->
-      <p class="text-gray-600 text-xs mt-10">✂️ Barbería El Jefe &mdash; Sistema de membresías</p>
+      <div class="relative z-10 mt-12 text-center">
+        <p class="text-xs tracking-[0.15em]" style="color: rgba(255,255,255,0.1);">BARBERÍA EL JEFE</p>
+      </div>
+
+      <!-- Línea dorada inferior -->
+      <div class="absolute bottom-0 left-0 right-0 h-px" style="background: linear-gradient(90deg, transparent 10%, rgba(201,164,76,0.4) 50%, transparent 90%);"></div>
     </div>
   `
 })
@@ -123,28 +181,21 @@ export class MembresiaCheckComponent implements OnInit {
   private readonly clienteService = inject(ClienteService);
   private readonly route = inject(ActivatedRoute);
 
-  codigo = '';
   loading = signal(false);
   resultado = signal<MembresiaCheck | null>(null);
   errorMsg = signal<string | null>(null);
+  codigoConsultado = '';
 
   ngOnInit() {
-    const codigoParam = this.route.snapshot.queryParamMap.get('codigo');
-    if (codigoParam) {
-      this.codigo = codigoParam;
-      this.consultar();
-    }
+    const codigo = this.route.snapshot.queryParamMap.get('codigo');
+    if (!codigo) return;
+    this.consultar(codigo);
   }
 
-  consultar() {
-    const cod = this.codigo.trim();
-    if (!cod) return;
-
+  consultar(codigo: string) {
+    this.codigoConsultado = codigo;
     this.loading.set(true);
-    this.resultado.set(null);
-    this.errorMsg.set(null);
-
-    this.clienteService.checkMembresia(cod).subscribe({
+    this.clienteService.checkMembresia(codigo).subscribe({
       next: (data) => {
         this.resultado.set(data);
         this.loading.set(false);
