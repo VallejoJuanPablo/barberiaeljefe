@@ -61,7 +61,7 @@ import { MembresiaCheck } from '../../models/cliente.model';
 
         <!-- Logo -->
         <div class="text-center mb-10">
-          <img src="logo.png" alt="El Jefe" class="w-44 mx-auto" />
+          <img src="/logo.png" alt="El Jefe" class="w-44 mx-auto" />
         </div>
 
         <!-- Sin código: pantalla de bienvenida -->
