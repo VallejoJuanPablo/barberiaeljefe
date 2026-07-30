@@ -33,7 +33,7 @@ Internet
     v
 [ Traefik :80/:443 ]  ─── SSL automatico (Let's Encrypt)
     |
-    |── barberiaeljefe.com ──> [ bej-web ]   Nginx (Angular 19 SPA + proxy)
+    |── eljefenegocios.com.ar ──> [ bej-web ]   Nginx (Angular 19 SPA + proxy)
     |                               |
     |                          [ bej-api ]    Node.js (Express + Mongoose)
     |                               |
@@ -287,10 +287,10 @@ NODE_ENV=production
 MONGODB_URI=mongodb://bej_admin:MISMA_PASSWORD@bej-db:27017/barberiaeljefe?authSource=admin
 
 # CORS (cambiar al dominio real)
-CORS_ORIGIN=https://barberiaeljefe.com
+CORS_ORIGIN=https://eljefenegocios.com.ar
 
 # === DOMINIO (usado en labels de Traefik) ===
-DOMAIN=barberiaeljefe.com
+DOMAIN=eljefenegocios.com.ar
 ```
 
 **Generar passwords:**
@@ -402,7 +402,7 @@ En el panel del registrador de dominio:
 Verificar propagacion:
 
 ```bash
-dig barberiaeljefe.com +short
+dig eljefenegocios.com.ar +short
 # Debe mostrar la IP del VPS
 ```
 
@@ -458,20 +458,20 @@ docker compose exec bej-api node src/seeds/seed.js
 ### Checklist funcional
 
 ```
-[ ] https://barberiaeljefe.com carga la pagina principal
-[ ] https://barberiaeljefe.com/api/clientes responde (con auth si aplica)
-[ ] Health check: curl https://barberiaeljefe.com responde JSON
-[ ] Consulta publica: https://barberiaeljefe.com/api/publico/membresia?codigo=BEJ-0001
+[ ] https://eljefenegocios.com.ar carga la pagina principal
+[ ] https://eljefenegocios.com.ar/api/clientes responde (con auth si aplica)
+[ ] Health check: curl https://eljefenegocios.com.ar responde JSON
+[ ] Consulta publica: https://eljefenegocios.com.ar/api/publico/membresia?codigo=BEJ-0001
 [ ] CRUD de clientes desde el panel funciona
 [ ] Refresh en una ruta del panel NO da 404
-[ ] http://barberiaeljefe.com redirige a https://
-[ ] http://www.barberiaeljefe.com redirige a https://barberiaeljefe.com
+[ ] http://eljefenegocios.com.ar redirige a https://
+[ ] http://www.eljefenegocios.com.ar redirige a https://eljefenegocios.com.ar
 ```
 
 ### Verificar SSL
 
 ```bash
-curl -I https://barberiaeljefe.com
+curl -I https://eljefenegocios.com.ar
 # Verificar que responde 200 con headers de seguridad
 ```
 
@@ -528,7 +528,7 @@ docker compose up -d --build
 # 3. Verificar
 docker compose ps
 docker compose logs --tail 10 bej-api
-curl -s https://barberiaeljefe.com
+curl -s https://eljefenegocios.com.ar
 ```
 
 ### 13.3 Script de deploy automatizado
@@ -654,7 +654,7 @@ docker compose logs bej-api --tail 50
 docker compose logs bej-web --tail 50
 
 # 3. Verificar que el DNS apunta bien
-dig barberiaeljefe.com +short
+dig eljefenegocios.com.ar +short
 ```
 
 ### 502 Bad Gateway
@@ -692,7 +692,7 @@ docker compose exec bej-db mongosh -u bej_admin -p --authenticationDatabase admi
 docker logs traefik 2>&1 | grep -i "acme\|certificate\|error"
 
 # Causas comunes:
-# 1. DNS no apunta al VPS → verificar con: dig barberiaeljefe.com +short
+# 1. DNS no apunta al VPS → verificar con: dig eljefenegocios.com.ar +short
 # 2. Puerto 80 cerrado → verificar con: sudo ufw status
 # 3. acme.json sin permisos → chmod 600 /opt/docker/traefik/acme.json
 ```
