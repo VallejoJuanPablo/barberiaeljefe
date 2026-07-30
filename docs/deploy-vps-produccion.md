@@ -329,7 +329,7 @@ services:
     networks:
       - internal
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "-u", "${MONGO_INITDB_ROOT_USERNAME}", "-p", "${MONGO_INITDB_ROOT_PASSWORD}", "--authenticationDatabase", "admin"]
+      test: ["CMD-SHELL", "mongosh --eval 'db.runCommand({ping:1}).ok' --quiet || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
