@@ -8,7 +8,7 @@ import { Cliente, MembresiaCheck } from '../models/cliente.model';
 })
 export class ClienteService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:3200/api';
+  private readonly baseUrl = '/api';
 
   getAll(): Observable<Cliente[]> {
     return this.http.get<Cliente[]>(`${this.baseUrl}/clientes`);
@@ -31,6 +31,10 @@ export class ClienteService {
   }
 
   checkMembresia(codigo: string): Observable<MembresiaCheck> {
-    return this.http.get<MembresiaCheck>(`${this.baseUrl}/clientes/check/${codigo}`);
+    return this.http.get<MembresiaCheck>(`${this.baseUrl}/publico/membresia`, { params: { codigo } });
+  }
+
+  getLogs(id: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/clientes/${id}/logs`);
   }
 }

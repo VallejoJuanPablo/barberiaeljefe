@@ -12,7 +12,7 @@ interface LoginResponse {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly baseUrl = 'http://localhost:3200/api';
+  private readonly baseUrl = '/api';
   private readonly TOKEN_KEY = 'bej_token';
   private readonly USER_KEY = 'bej_user';
 
