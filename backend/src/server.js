@@ -3,8 +3,10 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 
+const authRoutes = require('./routes/auth');
 const clientesRoutes = require('./routes/clientes');
 const publicoRoutes = require('./routes/publico');
+const authMiddleware = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3200;
@@ -16,9 +18,12 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// Rutas
-app.use('/api/clientes', clientesRoutes);
+// Rutas públicas
+app.use('/api/auth', authRoutes);
 app.use('/api/publico', publicoRoutes);
+
+// Rutas protegidas
+app.use('/api/clientes', authMiddleware, clientesRoutes);
 
 // Health check
 app.get('/', (req, res) => {

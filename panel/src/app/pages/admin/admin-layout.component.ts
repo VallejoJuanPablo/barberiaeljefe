@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -36,8 +37,17 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
         </nav>
 
         <!-- Footer -->
-        <div class="p-4 border-t border-gray-700">
-          <p class="text-xs text-gray-500 text-center">Panel de administración</p>
+        <div class="p-4 border-t border-gray-700 space-y-2">
+          <p class="text-xs text-gray-500 text-center">{{ authService.getUsuario()?.nombre }}</p>
+          <button
+            (click)="authService.logout()"
+            class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-gray-400 hover:bg-red-500/10 hover:text-red-400 transition-colors text-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Cerrar sesión
+          </button>
         </div>
       </aside>
 
@@ -48,4 +58,6 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
     </div>
   `
 })
-export class AdminLayoutComponent {}
+export class AdminLayoutComponent {
+  readonly authService = inject(AuthService);
+}

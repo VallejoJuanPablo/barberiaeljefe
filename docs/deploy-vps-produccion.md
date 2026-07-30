@@ -286,6 +286,10 @@ NODE_ENV=production
 # Conexion a MongoDB (el host es "bej-db", nombre del container en la red Docker)
 MONGODB_URI=mongodb://bej_admin:MISMA_PASSWORD@bej-db:27017/barberiaeljefe?authSource=admin
 
+# JWT (generar con: openssl rand -hex 32)
+JWT_SECRET=GENERAR_SECRET_AQUI
+JWT_EXPIRES_IN=8h
+
 # CORS (cambiar al dominio real)
 CORS_ORIGIN=https://eljefenegocios.com.ar
 

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -7,9 +8,15 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/login/login.component').then(m => m.LoginComponent)
+  },
+  {
     path: 'admin',
     loadComponent: () =>
       import('./pages/admin/admin-layout.component').then(m => m.AdminLayoutComponent),
+    canActivate: [authGuard],
     children: [
       {
         path: '',
@@ -34,7 +41,7 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'consulta',
+    path: 'consulta_membresia',
     loadComponent: () =>
       import('./pages/publico/membresia-check.component').then(m => m.MembresiaCheckComponent)
   }
