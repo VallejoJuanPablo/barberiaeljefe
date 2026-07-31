@@ -37,6 +37,21 @@ export const routes: Routes = [
         path: 'clientes/:id',
         loadComponent: () =>
           import('./pages/admin/clientes/cliente-form.component').then(m => m.ClienteFormComponent)
+      },
+      {
+        path: 'membresias',
+        loadComponent: () =>
+          import('./pages/admin/membresias/membresia-list.component').then(m => m.MembresiaListComponent)
+      },
+      {
+        path: 'membresias/nueva',
+        loadComponent: () =>
+          import('./pages/admin/membresias/membresia-form.component').then(m => m.MembresiaFormComponent)
+      },
+      {
+        path: 'membresias/:id',
+        loadComponent: () =>
+          import('./pages/admin/membresias/membresia-form.component').then(m => m.MembresiaFormComponent)
       }
     ]
   },

@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 
 const authRoutes = require('./routes/auth');
 const clientesRoutes = require('./routes/clientes');
+const membresiasRoutes = require('./routes/membresias');
 const publicoRoutes = require('./routes/publico');
 const authMiddleware = require('./middleware/auth');
 
@@ -24,6 +25,7 @@ app.use('/api/publico', publicoRoutes);
 
 // Rutas protegidas
 app.use('/api/clientes', authMiddleware, clientesRoutes);
+app.use('/api/membresias', authMiddleware, membresiasRoutes);
 
 // Health check
 app.get('/', (req, res) => {

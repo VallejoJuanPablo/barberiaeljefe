@@ -6,7 +6,7 @@ export interface Cliente {
   email: string;
   membresia: {
     activa: boolean;
-    tipo: 'basica' | 'premium' | 'vip';
+    tipo: string;
     fechaInicio: string;
     fechaFin: string;
   };
@@ -19,4 +19,21 @@ export interface MembresiaCheck {
   tipo: string;
   fechaFin: string;
   mensaje: string;
+}
+
+export interface Beneficio {
+  categoria: string;
+  icono: string;
+  items: string[];
+}
+
+export interface Membresia {
+  _id?: string;
+  nombre: string;
+  precio: number;
+  incluye: string[];
+  beneficios: Beneficio[];
+  descripcion: string;
+  activa: boolean;
+  createdAt?: string;
 }
