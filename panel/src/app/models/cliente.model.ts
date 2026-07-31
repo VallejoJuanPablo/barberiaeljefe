@@ -19,6 +19,12 @@ export interface MembresiaCheck {
   tipo: string;
   fechaFin: string;
   mensaje: string;
+  plan: {
+    precio: number;
+    incluye: string[];
+    beneficios: Beneficio[];
+    descripcion: string;
+  } | null;
 }
 
 export interface Beneficio {

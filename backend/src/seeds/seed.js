@@ -17,14 +17,14 @@ const clientes = [
     nombre: 'Carlos Gómez',
     telefono: '3794112233',
     email: 'carlos.gomez@email.com',
-    membresia: { activa: true, tipo: 'Jefe Ejecutivo', fechaInicio: new Date('2026-07-01'), fechaFin: new Date('2027-07-01') }
+    membresia: { activa: true, tipo: 'Jefe Individual', fechaInicio: new Date('2026-07-01'), fechaFin: new Date('2027-07-01') }
   },
   {
     codigo: 'BEJ-0002',
     nombre: 'Martín López',
     telefono: '3794445566',
     email: 'martin.lopez@email.com',
-    membresia: { activa: false, tipo: 'Cut Clean', fechaInicio: new Date('2026-01-01'), fechaFin: new Date('2026-06-30') }
+    membresia: { activa: false, tipo: 'Jefe Familiar', fechaInicio: new Date('2026-01-01'), fechaFin: new Date('2026-06-30') }
   }
 ];
 
