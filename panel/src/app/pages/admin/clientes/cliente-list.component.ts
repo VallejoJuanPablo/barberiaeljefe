@@ -66,6 +66,7 @@ import { Cliente } from '../../../models/cliente.model';
                   <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Teléfono</th>
                   <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Membresía</th>
                   <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
+                  <th class="text-center px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">QR</th>
                   <th class="text-right px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
@@ -96,6 +97,17 @@ import { Cliente } from '../../../models/cliente.model';
                         </span>
                       }
                     </td>
+                    <td class="px-4 py-3 text-center">
+                      <button
+                        (click)="mostrarQR(cliente.codigo)"
+                        class="p-1.5 text-gray-400 hover:text-amber-400 hover:bg-gray-700 rounded transition-colors"
+                        title="Ver QR"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm14 3h.01M17 14h3v3h-3v-3zm0 4h3v3h-3v-3zm-4 0h3v3h-3v-3zm-4-4h.01" />
+                        </svg>
+                      </button>
+                    </td>
                     <td class="px-4 py-3 text-right">
                       <div class="flex items-center justify-end gap-2">
                         <a
@@ -121,7 +133,7 @@ import { Cliente } from '../../../models/cliente.model';
                   </tr>
                 } @empty {
                   <tr>
-                    <td colspan="6" class="px-4 py-12 text-center text-gray-500">
+                    <td colspan="7" class="px-4 py-12 text-center text-gray-500">
                       <div class="flex flex-col items-center gap-2">
                         <span class="text-4xl">✂️</span>
                         <p class="text-sm">No hay clientes registrados</p>
@@ -172,6 +184,27 @@ import { Cliente } from '../../../models/cliente.model';
           </div>
         </div>
       }
+      <!-- Modal QR -->
+      @if (qrCodigo()) {
+        <div class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" (click)="cerrarQR()">
+          <div class="relative max-w-lg w-full" (click)="$event.stopPropagation()">
+            <button
+              (click)="cerrarQR()"
+              class="absolute -top-3 -right-3 w-8 h-8 bg-gray-700 hover:bg-gray-600 text-white rounded-full flex items-center justify-center z-10 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <img
+              [src]="'/img/frente_' + qrCodigo() + '.png'"
+              [alt]="'Tarjeta ' + qrCodigo()"
+              class="w-full rounded-xl shadow-2xl"
+            />
+            <p class="text-center text-amber-400 font-mono text-sm mt-3">{{ qrCodigo() }}</p>
+          </div>
+        </div>
+      }
     </div>
   `
 })
@@ -184,6 +217,7 @@ export class ClienteListComponent implements OnInit {
   busqueda = '';
   clienteAEliminar = signal<Cliente | null>(null);
   eliminando = signal(false);
+  qrCodigo = signal<string | null>(null);
 
   clientesFiltrados = computed(() => {
     const b = this.busqueda.toLowerCase().trim();
@@ -219,6 +253,14 @@ export class ClienteListComponent implements OnInit {
       vip: 'bg-amber-900/50 text-amber-300 border border-amber-800'
     };
     return map[tipo] ?? 'bg-gray-700 text-gray-300 border border-gray-600';
+  }
+
+  mostrarQR(codigo: string) {
+    this.qrCodigo.set(codigo);
+  }
+
+  cerrarQR() {
+    this.qrCodigo.set(null);
   }
 
   confirmarEliminar(cliente: Cliente) {

@@ -51,6 +51,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "frente_BEJ-*.png",
+                "input": "../img",
+                "output": "/img"
               }
             ],
             "styles": [
@@ -123,5 +128,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "15a23501-3c65-47b6-80fd-66090d5bb9ea"
   }
 }
