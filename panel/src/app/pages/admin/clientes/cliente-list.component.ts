@@ -197,7 +197,7 @@ import { Cliente } from '../../../models/cliente.model';
               </svg>
             </button>
             <img
-              [src]="'/img/frente_' + qrCodigo() + '.png'"
+              [src]="'/img/frente_' + qrCodigo() + '.jpg'"
               [alt]="'Tarjeta ' + qrCodigo()"
               class="w-full rounded-xl shadow-2xl"
             />
