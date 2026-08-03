@@ -196,12 +196,34 @@ import { Cliente } from '../../../models/cliente.model';
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <img
-              [src]="'/img/frente_' + qrCodigo() + '.jpg'"
-              [alt]="'Tarjeta ' + qrCodigo()"
-              class="w-full rounded-xl shadow-2xl"
-            />
-            <p class="text-center text-amber-400 font-mono text-sm mt-3">{{ qrCodigo() }}</p>
+            <div class="bg-white rounded-xl p-4 shadow-2xl">
+              <img
+                #qrImg
+                [src]="'/img/frente_' + qrCodigo() + '.jpg'"
+                [alt]="'Tarjeta ' + qrCodigo()"
+                class="w-full rounded-lg"
+                crossorigin="anonymous"
+              />
+              <div class="flex items-center justify-center gap-3 mt-4">
+                <p class="text-gray-800 font-mono text-sm font-semibold">{{ qrCodigo() }}</p>
+                <button
+                  (click)="copiarImagen(qrImg)"
+                  class="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold px-4 py-2 rounded-lg transition-colors text-sm"
+                >
+                  @if (copiado()) {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Copiada
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                    Copiar imagen
+                  }
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       }
@@ -218,6 +240,7 @@ export class ClienteListComponent implements OnInit {
   clienteAEliminar = signal<Cliente | null>(null);
   eliminando = signal(false);
   qrCodigo = signal<string | null>(null);
+  copiado = signal(false);
 
   clientesFiltrados = computed(() => {
     const b = this.busqueda.toLowerCase().trim();
@@ -261,6 +284,28 @@ export class ClienteListComponent implements OnInit {
 
   cerrarQR() {
     this.qrCodigo.set(null);
+    this.copiado.set(false);
+  }
+
+  async copiarImagen(img: HTMLImageElement) {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0);
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(b => b ? resolve(b) : reject(), 'image/png');
+      });
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob })
+      ]);
+      this.copiado.set(true);
+      setTimeout(() => this.copiado.set(false), 2000);
+    } catch {
+      // Fallback: abrir en nueva pestaña para guardar manualmente
+      window.open('/img/frente_' + this.qrCodigo() + '.jpg', '_blank');
+    }
   }
 
   confirmarEliminar(cliente: Cliente) {
