@@ -87,30 +87,30 @@ import { Beneficio } from '../../../models/cliente.model';
             </button>
           </div>
 
-          @for (ben of beneficios; track $index) {
+          @for (ben of beneficios; track ben._uid; let catIdx = $index) {
             <div class="border border-gray-600 rounded-lg p-4 space-y-3">
               <div class="flex gap-2 items-end">
                 <div class="w-16">
                   <label class="block text-xs text-gray-500 mb-1">Icono</label>
-                  <input type="text" [(ngModel)]="ben.icono" [name]="'icono_' + $index"
+                  <input type="text" [(ngModel)]="ben.icono" [name]="'icono_' + ben._uid"
                          class="w-full px-2 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-center focus:outline-none focus:border-amber-500" />
                 </div>
                 <div class="flex-1">
                   <label class="block text-xs text-gray-500 mb-1">Categoría</label>
-                  <input type="text" [(ngModel)]="ben.categoria" [name]="'cat_' + $index"
+                  <input type="text" [(ngModel)]="ben.categoria" [name]="'cat_' + ben._uid"
                          class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500"
                          placeholder="Ej: Gastronomía" />
                 </div>
-                <button type="button" (click)="beneficios.splice($index, 1)"
+                <button type="button" (click)="beneficios.splice(catIdx, 1)"
                         class="px-2 py-2 text-gray-500 hover:text-red-400 transition-colors">✕</button>
               </div>
 
-              @for (item of ben.items; track $index) {
+              @for (item of ben.items; track itemIdx; let itemIdx = $index) {
                 <div class="flex gap-2 pl-8">
-                  <input type="text" [(ngModel)]="ben.items[$index]" [name]="'ben_' + $index + '_item_' + $index"
+                  <input type="text" [(ngModel)]="ben.items[itemIdx]" [name]="'ben_' + ben._uid + '_item_' + itemIdx"
                          class="flex-1 px-3 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500"
                          placeholder="Beneficio..." />
-                  <button type="button" (click)="ben.items.splice($index, 1)"
+                  <button type="button" (click)="ben.items.splice(itemIdx, 1)"
                           class="px-2 text-gray-500 hover:text-red-400 text-sm transition-colors">✕</button>
                 </div>
               }
@@ -149,7 +149,8 @@ export class MembresiaFormComponent implements OnInit {
   descripcion = '';
   activa = true;
   incluye: string[] = [''];
-  beneficios: Beneficio[] = [];
+  beneficios: (Beneficio & { _uid: number })[] = [];
+  private uidCounter = 0;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -162,7 +163,7 @@ export class MembresiaFormComponent implements OnInit {
         this.descripcion = m.descripcion;
         this.activa = m.activa;
         this.incluye = [...m.incluye];
-        this.beneficios = m.beneficios.map(b => ({ ...b, items: [...b.items] }));
+        this.beneficios = m.beneficios.map(b => ({ ...b, items: [...b.items], _uid: ++this.uidCounter }));
       });
     }
   }
@@ -172,7 +173,7 @@ export class MembresiaFormComponent implements OnInit {
   }
 
   agregarCategoria() {
-    this.beneficios.push({ categoria: '', icono: '', items: [''] });
+    this.beneficios.push({ categoria: '', icono: '', items: [''], _uid: ++this.uidCounter });
   }
 
   onSubmit() {
@@ -185,7 +186,7 @@ export class MembresiaFormComponent implements OnInit {
       incluye: this.incluye.filter(i => i.trim()),
       beneficios: this.beneficios
         .filter(b => b.categoria.trim())
-        .map(b => ({ ...b, items: b.items.filter(i => i.trim()) }))
+        .map(({ _uid, ...b }) => ({ ...b, items: b.items.filter(i => i.trim()) }))
     };
 
     const obs = this.isEdit
