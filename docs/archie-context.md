@@ -41,8 +41,14 @@ BarberiaElJefe/
 - `GET /api/publico/membresia?codigo=BEJ-0001` — Consulta pública
 
 ## Última sesión
-2026-07-11 — Proyecto creado
-- Backend inicializado (Express + Mongoose + CRUD + ruta pública)
-- Frontend inicializado (Angular 19 + Tailwind CSS 4, build OK)
-- Git init en rama feature/init
-- Pendiente: componentes Angular (panel admin + página pública)
+2026-08-03 — Tarjetas QR + columna QR en panel
+- Generador de tarjetas (generate-cards.js): sharp + qrcode, QR dorado sin fondo, código debajo, JPEG 1231x864 ~146KB
+- 100 tarjetas generadas (BEJ-0001 a BEJ-0100) en panel/public/img/
+- Columna QR en listado de clientes con popup modal (fondo blanco, botón copiar imagen al portapapeles)
+- URL QR: https://eljefenegocios.com.ar/consulta_membresia?codigo=BEJ-XXXX
+- Todo mergeado a main y pusheado
+
+## Pendiente
+- [ ] Configurar MongoDB (local o Atlas) para levantar en local
+- [ ] Deploy en VPS (guía en docs/deploy-vps.md)
+- [ ] Testing en dispositivos reales
