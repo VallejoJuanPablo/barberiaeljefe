@@ -119,38 +119,6 @@ import { Membresia, Beneficio } from '../../models/cliente.model';
       </section>
 
       <!-- ═══════════════════════════════════
-           SERVICIOS
-           ═══════════════════════════════════ -->
-      <section class="px-5 pb-12 max-w-4xl mx-auto fade-in">
-        <div class="text-center mb-8">
-          <p class="text-xs tracking-[0.2em] uppercase gold-soft mb-2">Nuestros servicios</p>
-          <h2 class="font-display text-2xl md:text-3xl text-white">Lo que hacemos mejor</h2>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="bg-card gold-border rounded-2xl p-5 text-center">
-            <span class="text-3xl block mb-3">✂️</span>
-            <p class="text-sm text-white font-semibold mb-1">Cortes</p>
-            <p class="text-xs text-gray-500">Clásicos y modernos</p>
-          </div>
-          <div class="bg-card gold-border rounded-2xl p-5 text-center">
-            <span class="text-3xl block mb-3">🪒</span>
-            <p class="text-sm text-white font-semibold mb-1">Barba</p>
-            <p class="text-xs text-gray-500">Perfilado y afeitado</p>
-          </div>
-          <div class="bg-card gold-border rounded-2xl p-5 text-center">
-            <span class="text-3xl block mb-3">💆</span>
-            <p class="text-sm text-white font-semibold mb-1">Tratamientos</p>
-            <p class="text-xs text-gray-500">Capilares y faciales</p>
-          </div>
-          <div class="bg-card gold-border rounded-2xl p-5 text-center">
-            <span class="text-3xl block mb-3">👑</span>
-            <p class="text-sm text-white font-semibold mb-1">Membresías</p>
-            <p class="text-xs text-gray-500">Beneficios exclusivos</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══════════════════════════════════
            POR QUÉ ELEGIRNOS
            ═══════════════════════════════════ -->
       <section class="px-5 pb-12 max-w-3xl mx-auto fade-in">
