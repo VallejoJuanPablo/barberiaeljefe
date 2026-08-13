@@ -59,4 +59,15 @@ const checkMembresia = async (req, res) => {
   }
 };
 
-module.exports = { checkMembresia };
+// GET /api/publico/planes — Lista planes activos (sin auth)
+const getPlanes = async (req, res) => {
+  try {
+    const planes = await Membresia.find({ activa: true }).sort({ precio: 1 });
+    res.charset = 'utf-8';
+    res.json(planes);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al obtener planes', error: error.message });
+  }
+};
+
+module.exports = { checkMembresia, getPlanes };

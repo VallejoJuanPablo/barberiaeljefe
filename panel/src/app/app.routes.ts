@@ -4,7 +4,8 @@ import { authGuard } from './guards/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/admin/clientes',
+    loadComponent: () =>
+      import('./pages/publico/landing.component').then(m => m.LandingComponent),
     pathMatch: 'full'
   },
   {
