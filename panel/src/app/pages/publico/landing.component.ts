@@ -119,6 +119,72 @@ import { Membresia, Beneficio } from '../../models/cliente.model';
       </section>
 
       <!-- ═══════════════════════════════════
+           SERVICIOS
+           ═══════════════════════════════════ -->
+      <section class="px-5 pb-12 max-w-4xl mx-auto fade-in">
+        <div class="text-center mb-8">
+          <p class="text-xs tracking-[0.2em] uppercase gold-soft mb-2">Nuestros servicios</p>
+          <h2 class="font-display text-2xl md:text-3xl text-white">Lo que hacemos mejor</h2>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-card gold-border rounded-2xl p-5 text-center">
+            <span class="text-3xl block mb-3">✂️</span>
+            <p class="text-sm text-white font-semibold mb-1">Cortes</p>
+            <p class="text-xs text-gray-500">Clásicos y modernos</p>
+          </div>
+          <div class="bg-card gold-border rounded-2xl p-5 text-center">
+            <span class="text-3xl block mb-3">🪒</span>
+            <p class="text-sm text-white font-semibold mb-1">Barba</p>
+            <p class="text-xs text-gray-500">Perfilado y afeitado</p>
+          </div>
+          <div class="bg-card gold-border rounded-2xl p-5 text-center">
+            <span class="text-3xl block mb-3">💆</span>
+            <p class="text-sm text-white font-semibold mb-1">Tratamientos</p>
+            <p class="text-xs text-gray-500">Capilares y faciales</p>
+          </div>
+          <div class="bg-card gold-border rounded-2xl p-5 text-center">
+            <span class="text-3xl block mb-3">👑</span>
+            <p class="text-sm text-white font-semibold mb-1">Membresías</p>
+            <p class="text-xs text-gray-500">Beneficios exclusivos</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════
+           POR QUÉ ELEGIRNOS
+           ═══════════════════════════════════ -->
+      <section class="px-5 pb-12 max-w-3xl mx-auto fade-in">
+        <div class="text-center mb-8">
+          <div class="h-px w-16 gold-line mx-auto mb-6"></div>
+          <p class="text-xs tracking-[0.2em] uppercase gold-soft mb-2">La experiencia</p>
+          <h2 class="font-display text-2xl md:text-3xl text-white">¿Por qué El Jefe?</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div class="text-center">
+            <div class="w-12 h-12 rounded-full gold-border flex items-center justify-center mx-auto mb-3">
+              <span class="gold text-lg">01</span>
+            </div>
+            <p class="text-sm text-white font-semibold mb-1">Profesionales</p>
+            <p class="text-xs text-gray-500">Barberos con experiencia y capacitación constante</p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 rounded-full gold-border flex items-center justify-center mx-auto mb-3">
+              <span class="gold text-lg">02</span>
+            </div>
+            <p class="text-sm text-white font-semibold mb-1">Ambiente</p>
+            <p class="text-xs text-gray-500">Un espacio pensado para que te relajes y disfrutes</p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 rounded-full gold-border flex items-center justify-center mx-auto mb-3">
+              <span class="gold text-lg">03</span>
+            </div>
+            <p class="text-sm text-white font-semibold mb-1">Beneficios</p>
+            <p class="text-xs text-gray-500">Descuentos exclusivos en gastronomía, estética y más</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════
            PLANES
            ═══════════════════════════════════ -->
       @if (planes().length > 0) {
@@ -244,10 +310,58 @@ export class LandingComponent implements OnInit {
   ngOnInit() {
     this.clienteService.getPlanes().subscribe({
       next: (data) => {
-        this.planes.set(data);
-        this.agruparBeneficios(data);
-      }
+        if (data?.length) {
+          this.planes.set(data);
+          this.agruparBeneficios(data);
+        } else {
+          this.usarFallback();
+        }
+      },
+      error: () => this.usarFallback()
     });
+  }
+
+  private usarFallback() {
+    const fallback: Membresia[] = [
+      {
+        nombre: 'Básica',
+        precio: 15000,
+        incluye: ['2 cortes por mes', 'Barba incluida', 'Turno prioritario'],
+        beneficios: [
+          { categoria: 'Gastronomía', icono: '🍺', items: ['10% de descuento en bares adheridos'] },
+          { categoria: 'Estética', icono: '💈', items: ['Producto de styling de regalo al mes'] },
+        ],
+        descripcion: 'Ideal para quienes buscan mantener su estilo con los básicos.',
+        activa: true,
+      },
+      {
+        nombre: 'Premium',
+        precio: 25000,
+        incluye: ['4 cortes por mes', 'Barba incluida', 'Cejas y nariz', 'Turno prioritario', 'Producto de styling'],
+        beneficios: [
+          { categoria: 'Gastronomía', icono: '🍺', items: ['15% de descuento en bares y restaurantes adheridos', 'Bebida de cortesía en la barbería'] },
+          { categoria: 'Estética', icono: '💈', items: ['Tratamiento capilar mensual', 'Descuento en productos premium'] },
+          { categoria: 'Bienestar', icono: '🏋️', items: ['Clase de prueba gratis en gimnasios adheridos'] },
+        ],
+        descripcion: 'Para los que quieren el paquete completo y beneficios extra.',
+        activa: true,
+      },
+      {
+        nombre: 'VIP',
+        precio: 40000,
+        incluye: ['Cortes ilimitados', 'Barba ilimitada', 'Cejas y nariz', 'Tratamiento capilar semanal', 'Productos premium incluidos', 'Acceso a eventos exclusivos'],
+        beneficios: [
+          { categoria: 'Gastronomía', icono: '🍺', items: ['20% de descuento en todos los locales adheridos', '2x1 en bares seleccionados', 'Bebida premium de cortesía'] },
+          { categoria: 'Estética', icono: '💈', items: ['Tratamientos capilares ilimitados', 'Kit de productos premium trimestral', 'Asesoría de imagen personal'] },
+          { categoria: 'Bienestar', icono: '🏋️', items: ['Pase libre en gimnasios adheridos', 'Sesión de masajes mensual'] },
+          { categoria: 'Exclusivo', icono: '⭐', items: ['Acceso a eventos VIP de la barbería', 'Descuentos en indumentaria adherida', 'Tarjeta de presentación personalizada'] },
+        ],
+        descripcion: 'La experiencia El Jefe sin límites. Acceso total a servicios y beneficios.',
+        activa: true,
+      },
+    ];
+    this.planes.set(fallback);
+    this.agruparBeneficios(fallback);
   }
 
   /** Agrupa beneficios de todos los planes en categorías únicas, sin duplicar ítems */
