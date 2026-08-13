@@ -250,26 +250,30 @@ export class LandingComponent implements OnInit {
     this.agruparBeneficios(fallback);
   }
 
-  /** Agrupa beneficios de todos los planes en categorías únicas, sin duplicar ítems */
+  /** Agrupa beneficios de todos los planes por categoría, comparando case-insensitive para eliminar duplicados */
   private agruparBeneficios(planes: Membresia[]) {
-    const map = new Map<string, { icono: string; items: Set<string> }>();
+    const map = new Map<string, { icono: string; seen: Set<string>; items: string[] }>();
 
     for (const plan of planes) {
       for (const ben of plan.beneficios) {
         if (!map.has(ben.categoria)) {
-          map.set(ben.categoria, { icono: ben.icono, items: new Set() });
+          map.set(ben.categoria, { icono: ben.icono, seen: new Set(), items: [] });
         }
         const entry = map.get(ben.categoria)!;
         if (!entry.icono && ben.icono) entry.icono = ben.icono;
         for (const item of ben.items) {
-          entry.items.add(item);
+          const key = item.trim().toLowerCase();
+          if (!entry.seen.has(key)) {
+            entry.seen.add(key);
+            entry.items.push(item.trim());
+          }
         }
       }
     }
 
     const agrupados: Beneficio[] = [];
     map.forEach((val, key) => {
-      agrupados.push({ categoria: key, icono: val.icono, items: Array.from(val.items) });
+      agrupados.push({ categoria: key, icono: val.icono, items: val.items });
     });
 
     this.beneficiosAgrupados.set(agrupados);
