@@ -270,7 +270,7 @@ import { Membresia, Beneficio } from '../../models/cliente.model';
 })
 export class LandingComponent implements OnInit {
   private readonly clienteService = inject(ClienteService);
-  private readonly whatsappNumber = '5493764272818';
+  private readonly whatsappNumber = '5493794275062';
 
   planes = signal<Membresia[]>([]);
   beneficiosAgrupados = signal<Beneficio[]>([]);
