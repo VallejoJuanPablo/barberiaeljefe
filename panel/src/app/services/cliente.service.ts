@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Cliente, MembresiaCheck } from '../models/cliente.model';
+import { Cliente, Membresia, MembresiaCheck } from '../models/cliente.model';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +32,10 @@ export class ClienteService {
 
   checkMembresia(codigo: string): Observable<MembresiaCheck> {
     return this.http.get<MembresiaCheck>(`${this.baseUrl}/publico/membresia`, { params: { codigo } });
+  }
+
+  getPlanes(): Observable<Membresia[]> {
+    return this.http.get<Membresia[]>(`${this.baseUrl}/publico/planes`);
   }
 
   getLogs(id: string): Observable<any[]> {
