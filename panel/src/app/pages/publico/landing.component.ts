@@ -168,6 +168,23 @@ import { Membresia, Beneficio } from '../../models/cliente.model';
         <p class="text-sm text-gray-400">Escribinos por WhatsApp y te contamos cómo acceder a los beneficios.</p>
       </section>
 
+      <!-- ═══════════════════════════════════
+           NEGOCIOS
+           ═══════════════════════════════════ -->
+      <section class="px-5 pb-16 max-w-lg mx-auto text-center fade-in">
+        <div class="bg-card gold-border rounded-2xl px-8 py-10">
+          <p class="text-xs tracking-[0.2em] uppercase gold-soft mb-3">Para negocios</p>
+          <h2 class="font-display text-2xl text-white mb-4">¿Querés sumar tu negocio?</h2>
+          <p class="text-sm text-gray-400 mb-6 leading-relaxed">
+            Si sos negocio y querés sumarte a nuestro club de beneficios, contactate con nosotros.
+          </p>
+          <a [href]="whatsappUrl('Hola! Tengo un negocio y me interesa sumarme al club de beneficios')" target="_blank"
+             class="inline-block px-8 py-3 rounded-xl text-sm font-semibold text-white btn-whatsapp">
+            Contactanos
+          </a>
+        </div>
+      </section>
+
       <!-- Footer -->
       <footer class="text-center pb-8">
         <p class="text-xs tracking-[0.15em]" style="color: rgba(255,255,255,0.1);">BARBERÍA EL JEFE</p>
