@@ -23,10 +23,10 @@ const checkMembresia = async (req, res) => {
       cliente.membresia.fechaFin &&
       new Date(cliente.membresia.fechaFin) >= ahora;
 
-    // Buscar datos del plan de membresía
+    // Buscar datos del plan de membresía con beneficios poblados
     let plan = null;
     if (cliente.membresia.tipo) {
-      plan = await Membresia.findOne({ nombre: cliente.membresia.tipo });
+      plan = await Membresia.findOne({ nombre: cliente.membresia.tipo }).populate('beneficios');
     }
 
     // Grabar log de consulta (fire & forget)
@@ -37,6 +37,22 @@ const checkMembresia = async (req, res) => {
       userAgent: req.headers['user-agent'] || '',
       resultado: membresiaVigente
     }).catch(() => {});
+
+    // Agrupar beneficios por categoría para la respuesta
+    let beneficiosAgrupados = [];
+    if (plan && plan.beneficios) {
+      const map = new Map();
+      for (const ben of plan.beneficios) {
+        if (!ben.activo) continue;
+        if (!map.has(ben.categoria)) {
+          map.set(ben.categoria, { categoria: ben.categoria, icono: ben.icono, items: [] });
+        }
+        const entry = map.get(ben.categoria);
+        if (!entry.icono && ben.icono) entry.icono = ben.icono;
+        entry.items.push({ nombre: ben.nombre, codigo: ben.codigo || null });
+      }
+      beneficiosAgrupados = Array.from(map.values());
+    }
 
     res.charset = 'utf-8';
     res.json({
@@ -50,7 +66,7 @@ const checkMembresia = async (req, res) => {
       plan: plan ? {
         precio: plan.precio,
         incluye: plan.incluye,
-        beneficios: plan.beneficios,
+        beneficios: beneficiosAgrupados,
         descripcion: plan.descripcion
       } : null
     });
@@ -62,7 +78,7 @@ const checkMembresia = async (req, res) => {
 // GET /api/publico/planes — Lista planes activos (sin auth)
 const getPlanes = async (req, res) => {
   try {
-    const planes = await Membresia.find({ activa: true }).sort({ precio: 1 });
+    const planes = await Membresia.find({ activa: true }).populate('beneficios').sort({ precio: 1 });
     res.charset = 'utf-8';
     res.json(planes);
   } catch (error) {

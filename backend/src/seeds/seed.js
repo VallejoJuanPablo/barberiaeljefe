@@ -4,12 +4,30 @@ const connectDB = require('../config/db');
 const Cliente = require('../models/Cliente');
 const Usuario = require('../models/Usuario');
 const Membresia = require('../models/Membresia');
+const Beneficio = require('../models/Beneficio');
 
 const adminUser = {
   email: 'admin@eljefenegocios.com.ar',
   password: 'admin123',
   nombre: 'Administrador'
 };
+
+// Beneficios individuales
+const beneficiosData = [
+  // Indumentaria
+  { nombre: '10% OFF en URBINA Concept (indumentaria masculina)', categoria: 'Indumentaria', icono: '👕', codigo: '', activo: true },
+  // Gastronomía
+  { nombre: '10% OFF + beneficios exclusivos en Tomate, ¿Qué te pasa? (casa de comidas rápidas)', categoria: 'Gastronomía', icono: '🍔', codigo: '', activo: true },
+  { nombre: 'Beneficios exclusivos en Grido 1000 Viviendas', categoria: 'Gastronomía', icono: '🍔', codigo: '', activo: true },
+  { nombre: '10% OFF en MEGADRINKS (Rafaela casi Tres de Abril)', categoria: 'Gastronomía', icono: '🍔', codigo: '', activo: true },
+  // Fitness & bienestar
+  { nombre: '10% OFF en la cuota de Panter Gym', categoria: 'Fitness & bienestar', icono: '🏋️', codigo: '', activo: true },
+  { nombre: 'Beneficios exclusivos en CAPPYGYM', categoria: 'Fitness & bienestar', icono: '🏋️', codigo: '', activo: true },
+  { nombre: '15% OFF en todos los servicios de Vitta Studio', categoria: 'Fitness & bienestar', icono: '🏋️', codigo: '', activo: true },
+  { nombre: '20% OFF en jornadas de depilación definitiva de Vitta Studio', categoria: 'Fitness & bienestar', icono: '🏋️', codigo: '', activo: true },
+  // Servicios
+  { nombre: '10% OFF en Lavadero El Jefe', categoria: 'Servicios', icono: '🧼', codigo: '', activo: true },
+];
 
 const clientes = [
   {
@@ -28,126 +46,13 @@ const clientes = [
   }
 ];
 
-const beneficiosBase = [
-  {
-    categoria: 'Indumentaria', icono: '👕',
-    items: ['10% OFF en URBINA Concept (indumentaria masculina)']
-  },
-  {
-    categoria: 'Gastronomía', icono: '🍔',
-    items: [
-      '10% OFF + beneficios exclusivos en Tomate, ¿Qué te pasa? (casa de comidas rápidas)',
-      'Beneficios exclusivos en Grido 1000 Viviendas',
-      '10% OFF en MEGADRINKS (Rafaela casi Tres de Abril)'
-    ]
-  },
-  {
-    categoria: 'Fitness & bienestar', icono: '🏋️',
-    items: [
-      '10% OFF en la cuota de Panter Gym',
-      'Beneficios exclusivos en CAPPYGYM',
-      '15% OFF en todos los servicios de Vitta Studio',
-      '20% OFF en jornadas de depilación definitiva de Vitta Studio'
-    ]
-  }
-];
-
-const membresias = [
-  {
-    nombre: 'Jefe Ejecutivo',
-    precio: 42000,
-    incluye: ['4 cortes de pelo por mes', '10% OFF en productos de la barbería'],
-    beneficios: [...beneficiosBase],
-    descripcion: ''
-  },
-  {
-    nombre: 'Jefe Full',
-    precio: 40000,
-    incluye: ['4 servicios de barba / perfilado por mes', '10% OFF en productos de la barbería'],
-    beneficios: [
-      ...beneficiosBase,
-      { categoria: 'Servicios', icono: '🧼', items: ['10% OFF en Lavadero El Jefe'] }
-    ],
-    descripcion: 'Un plan pensado para quienes buscan presencia, estilo y beneficios reales todos los días.'
-  },
-  {
-    nombre: 'Cut Clean',
-    precio: 40000,
-    incluye: ['2 cortes de pelo por mes', '1 lavado de auto sin cargo en Lavadero El Jefe'],
-    beneficios: [...beneficiosBase],
-    descripcion: 'La combinación perfecta para quienes quieren verse bien y mantener su vehículo impecable, con beneficios exclusivos que hacen rendir mucho más tu membresía.'
-  },
-  {
-    nombre: 'Promo Moto',
-    precio: 44000,
-    incluye: ['3 cortes de pelo por mes', '1 lavado de moto sin cargo en Lavadero El Jefe'],
-    beneficios: [...beneficiosBase],
-    descripcion: ''
-  },
-  {
-    nombre: 'Jefe Familiar',
-    precio: 80000,
-    incluye: [
-      '2 cortes de pelo + barba por mes',
-      '2 cortes de niño por mes',
-      '10% OFF en productos de la barbería',
-      '1 lavado de camioneta sin cargo en Lavadero El Jefe'
-    ],
-    beneficios: [...beneficiosBase],
-    descripcion: 'Pensado para toda la familia. Combina cortes para grandes y chicos, beneficios exclusivos, descuentos en comercios aliados y un lavado de camioneta sin cargo cada mes para disfrutar una experiencia completa.'
-  },
-  {
-    nombre: 'Madre e Hijo',
-    precio: 36000,
-    incluye: ['2 cortes de niño por mes', '1 hidratación sin cargo', '10% OFF en productos de la barbería'],
-    beneficios: [
-      { categoria: 'Indumentaria', icono: '👕', items: ['10% OFF en URBINA Concept (indumentaria masculina)'] },
-      { categoria: 'Servicios', icono: '🧼', items: ['10% OFF en Lavadero El Jefe'] },
-      {
-        categoria: 'Gastronomía', icono: '🍔',
-        items: [
-          '10% OFF + beneficios exclusivos en Tomate, ¿Qué te pasa? (casa de comidas rápidas)',
-          'Beneficios exclusivos en Grido 1000 Viviendas',
-          '10% OFF en MEGADRINKS (Rafaela casi Tres de Abril)'
-        ]
-      },
-      {
-        categoria: 'Fitness & bienestar', icono: '🏋️',
-        items: [
-          '10% OFF en la cuota de Panter Gym',
-          'Beneficios exclusivos en CAPPYGYM',
-          '15% OFF en todos los servicios de Vitta Studio',
-          '20% OFF en jornadas de depilación definitiva de Vitta Studio'
-        ]
-      }
-    ],
-    descripcion: 'Un plan pensado para acompañar el cuidado de los más chicos con beneficios para toda la familia. Incluye cortes, una hidratación de regalo y descuentos exclusivos en comercios y servicios aliados para disfrutar todos los meses.'
-  },
-  {
-    nombre: 'Plan x2 + Auto',
-    precio: 58000,
-    incluye: [
-      '1 corte de pelo por mes',
-      '1 corte de niño por mes',
-      '2 lavados de auto sin cargo en Lavadero El Jefe',
-      '10% OFF en productos de la barbería'
-    ],
-    beneficios: [...beneficiosBase],
-    descripcion: ''
-  },
-  {
-    nombre: 'Jefe Individual',
-    precio: 50000,
-    incluye: [
-      '1 corte de pelo + barba por mes',
-      '1 limpieza facial',
-      '1 lavado de auto sin cargo en Lavadero El Jefe',
-      '10% OFF en productos de la barbería'
-    ],
-    beneficios: [...beneficiosBase],
-    descripcion: 'Diseñado para quienes buscan una experiencia premium. Combina barbería, cuidado facial, un lavado de auto sin cargo y una amplia red de beneficios exclusivos para disfrutar durante todo el mes.'
-  }
-];
+// Helper: busca beneficios por nombre parcial
+function findBenIds(allBens, nombres) {
+  return nombres.map(n => {
+    const found = allBens.find(b => b.nombre.includes(n));
+    return found ? found._id : null;
+  }).filter(Boolean);
+}
 
 async function seed() {
   await connectDB();
@@ -161,9 +66,77 @@ async function seed() {
     console.log(`Ya existen ${userCount} usuarios. Omitido.`);
   }
 
+  // Beneficios
+  let allBeneficios;
+  const benCount = await Beneficio.countDocuments();
+  if (benCount === 0) {
+    allBeneficios = await Beneficio.insertMany(beneficiosData);
+    console.log(`${allBeneficios.length} beneficios creados`);
+  } else {
+    allBeneficios = await Beneficio.find();
+    console.log(`Ya existen ${benCount} beneficios. Omitido.`);
+  }
+
+  // IDs de beneficios por grupo
+  const beneficiosBase = findBenIds(allBeneficios, [
+    'URBINA', 'Tomate', 'Grido', 'MEGADRINKS',
+    'Panter', 'CAPPYGYM', '15% OFF en todos los servicios', '20% OFF en jornadas'
+  ]);
+  const beneficioLavadero = findBenIds(allBeneficios, ['Lavadero']);
+
   // Membresías
   const membCount = await Membresia.countDocuments();
   if (membCount === 0) {
+    const membresias = [
+      {
+        nombre: 'Jefe Ejecutivo', precio: 42000,
+        incluye: ['4 cortes de pelo por mes', '10% OFF en productos de la barbería'],
+        beneficios: [...beneficiosBase],
+        descripcion: ''
+      },
+      {
+        nombre: 'Jefe Full', precio: 40000,
+        incluye: ['4 servicios de barba / perfilado por mes', '10% OFF en productos de la barbería'],
+        beneficios: [...beneficiosBase, ...beneficioLavadero],
+        descripcion: 'Un plan pensado para quienes buscan presencia, estilo y beneficios reales todos los días.'
+      },
+      {
+        nombre: 'Cut Clean', precio: 40000,
+        incluye: ['2 cortes de pelo por mes', '1 lavado de auto sin cargo en Lavadero El Jefe'],
+        beneficios: [...beneficiosBase],
+        descripcion: 'La combinación perfecta para quienes quieren verse bien y mantener su vehículo impecable, con beneficios exclusivos que hacen rendir mucho más tu membresía.'
+      },
+      {
+        nombre: 'Promo Moto', precio: 44000,
+        incluye: ['3 cortes de pelo por mes', '1 lavado de moto sin cargo en Lavadero El Jefe'],
+        beneficios: [...beneficiosBase],
+        descripcion: ''
+      },
+      {
+        nombre: 'Jefe Familiar', precio: 80000,
+        incluye: ['2 cortes de pelo + barba por mes', '2 cortes de niño por mes', '10% OFF en productos de la barbería', '1 lavado de camioneta sin cargo en Lavadero El Jefe'],
+        beneficios: [...beneficiosBase],
+        descripcion: 'Pensado para toda la familia. Combina cortes para grandes y chicos, beneficios exclusivos, descuentos en comercios aliados y un lavado de camioneta sin cargo cada mes para disfrutar una experiencia completa.'
+      },
+      {
+        nombre: 'Madre e Hijo', precio: 36000,
+        incluye: ['2 cortes de niño por mes', '1 hidratación sin cargo', '10% OFF en productos de la barbería'],
+        beneficios: [...beneficiosBase, ...beneficioLavadero],
+        descripcion: 'Un plan pensado para acompañar el cuidado de los más chicos con beneficios para toda la familia. Incluye cortes, una hidratación de regalo y descuentos exclusivos en comercios y servicios aliados para disfrutar todos los meses.'
+      },
+      {
+        nombre: 'Plan x2 + Auto', precio: 58000,
+        incluye: ['1 corte de pelo por mes', '1 corte de niño por mes', '2 lavados de auto sin cargo en Lavadero El Jefe', '10% OFF en productos de la barbería'],
+        beneficios: [...beneficiosBase],
+        descripcion: ''
+      },
+      {
+        nombre: 'Jefe Individual', precio: 50000,
+        incluye: ['1 corte de pelo + barba por mes', '1 limpieza facial', '1 lavado de auto sin cargo en Lavadero El Jefe', '10% OFF en productos de la barbería'],
+        beneficios: [...beneficiosBase],
+        descripcion: 'Diseñado para quienes buscan una experiencia premium. Combina barbería, cuidado facial, un lavado de auto sin cargo y una amplia red de beneficios exclusivos para disfrutar durante todo el mes.'
+      }
+    ];
     await Membresia.insertMany(membresias);
     console.log(`${membresias.length} membresías creadas`);
   } else {
