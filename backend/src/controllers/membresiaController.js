@@ -42,7 +42,7 @@ const updateMembresia = async (req, res) => {
 const deleteMembresia = async (req, res) => {
   try {
     const membresia = await Membresia.findByIdAndDelete(req.params.id);
-    if (!membresia) return res.status(404).json({ mensaje: 'Membresía eliminada' });
+    if (!membresia) return res.status(404).json({ mensaje: 'Membresía no encontrada' });
     res.json({ mensaje: 'Membresía eliminada' });
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al eliminar membresía', error: error.message });

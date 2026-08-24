@@ -154,7 +154,7 @@ export class MembresiaFormComponent implements OnInit {
   beneficiosAgrupados = computed(() => {
     const todos = this.allBeneficios();
     const map = new Map<string, { categoria: string; icono: string; items: Beneficio[] }>();
-    for (const ben of todos) {
+    for (const ben of todos.filter(b => b.activo)) {
       if (!map.has(ben.categoria)) {
         map.set(ben.categoria, { categoria: ben.categoria, icono: ben.icono, items: [] });
       }

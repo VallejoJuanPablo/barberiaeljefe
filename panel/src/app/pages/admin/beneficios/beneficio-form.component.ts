@@ -122,7 +122,10 @@ export class BeneficioFormComponent implements OnInit {
 
     obs.subscribe({
       next: () => this.router.navigate(['/admin/beneficios']),
-      error: () => this.loading = false
+      error: () => {
+        this.loading = false;
+        alert('Error al guardar. Verificá los datos e intentá de nuevo.');
+      }
     });
   }
 }
