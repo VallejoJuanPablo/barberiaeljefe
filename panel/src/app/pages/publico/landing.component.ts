@@ -2,6 +2,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ClienteService } from '../../services/cliente.service';
 import { Membresia, Beneficio } from '../../models/cliente.model';
 
+interface BeneficioAgrupado {
+  categoria: string;
+  icono: string;
+  items: string[];
+}
+
 @Component({
   selector: 'app-landing',
   standalone: true,
@@ -78,9 +84,7 @@ import { Membresia, Beneficio } from '../../models/cliente.model';
       <!-- Línea dorada superior -->
       <div class="absolute top-0 left-0 right-0 h-px gold-line"></div>
 
-      <!-- ═══════════════════════════════════
-           HERO
-           ═══════════════════════════════════ -->
+      <!-- HERO -->
       <section class="flex flex-col items-center pt-16 pb-12 px-5 text-center">
         <img src="/logo.png" alt="El Jefe" class="w-44 mx-auto mb-6" />
         <h1 class="font-display text-4xl md:text-5xl text-white mb-3">Barbería <span class="gold">El Jefe</span></h1>
@@ -92,9 +96,7 @@ import { Membresia, Beneficio } from '../../models/cliente.model';
         </p>
       </section>
 
-      <!-- ═══════════════════════════════════
-           POR QUÉ ELEGIRNOS
-           ═══════════════════════════════════ -->
+      <!-- POR QUÉ ELEGIRNOS -->
       <section class="px-5 pb-12 max-w-3xl mx-auto fade-in">
         <div class="text-center mb-8">
           <div class="h-px w-16 gold-line mx-auto mb-6"></div>
@@ -126,9 +128,7 @@ import { Membresia, Beneficio } from '../../models/cliente.model';
         </div>
       </section>
 
-      <!-- ═══════════════════════════════════
-           BENEFICIOS AGRUPADOS POR CATEGORÍA
-           ═══════════════════════════════════ -->
+      <!-- BENEFICIOS AGRUPADOS POR CATEGORÍA -->
       @if (beneficiosAgrupados().length > 0) {
         <section class="px-5 pb-12 max-w-4xl mx-auto fade-in">
           <div class="text-center mb-8">
@@ -158,9 +158,7 @@ import { Membresia, Beneficio } from '../../models/cliente.model';
         </section>
       }
 
-      <!-- ═══════════════════════════════════
-           CONTACTO
-           ═══════════════════════════════════ -->
+      <!-- CONTACTO -->
       <section class="px-5 pb-16 max-w-md mx-auto text-center fade-in">
         <div class="h-px w-16 gold-line mx-auto mb-8"></div>
         <p class="text-xs tracking-[0.2em] uppercase gold-soft mb-2">Contacto</p>
@@ -168,9 +166,7 @@ import { Membresia, Beneficio } from '../../models/cliente.model';
         <p class="text-sm text-gray-400">Escribinos por WhatsApp y te contamos cómo acceder a los beneficios.</p>
       </section>
 
-      <!-- ═══════════════════════════════════
-           NEGOCIOS
-           ═══════════════════════════════════ -->
+      <!-- NEGOCIOS -->
       <section class="px-5 pb-16 max-w-lg mx-auto text-center fade-in">
         <div class="bg-card gold-border rounded-2xl px-8 py-10">
           <p class="text-xs tracking-[0.2em] uppercase gold-soft mb-3">Para negocios</p>
@@ -208,7 +204,7 @@ export class LandingComponent implements OnInit {
   private readonly whatsappNumber = '5493794275062';
 
   planes = signal<Membresia[]>([]);
-  beneficiosAgrupados = signal<Beneficio[]>([]);
+  beneficiosAgrupados = signal<BeneficioAgrupado[]>([]);
 
   ngOnInit() {
     this.clienteService.getPlanes().subscribe({
@@ -225,70 +221,36 @@ export class LandingComponent implements OnInit {
   }
 
   private usarFallback() {
-    const fallback: Membresia[] = [
-      {
-        nombre: 'Básica',
-        precio: 15000,
-        incluye: ['2 cortes por mes', 'Barba incluida', 'Turno prioritario'],
-        beneficios: [
-          { categoria: 'Gastronomía', icono: '🍺', items: ['10% de descuento en bares adheridos'] },
-          { categoria: 'Estética', icono: '💈', items: ['Producto de styling de regalo al mes'] },
-        ],
-        descripcion: 'Ideal para quienes buscan mantener su estilo con los básicos.',
-        activa: true,
-      },
-      {
-        nombre: 'Premium',
-        precio: 25000,
-        incluye: ['4 cortes por mes', 'Barba incluida', 'Cejas y nariz', 'Turno prioritario', 'Producto de styling'],
-        beneficios: [
-          { categoria: 'Gastronomía', icono: '🍺', items: ['15% de descuento en bares y restaurantes adheridos', 'Bebida de cortesía en la barbería'] },
-          { categoria: 'Estética', icono: '💈', items: ['Tratamiento capilar mensual', 'Descuento en productos premium'] },
-          { categoria: 'Bienestar', icono: '🏋️', items: ['Clase de prueba gratis en gimnasios adheridos'] },
-        ],
-        descripcion: 'Para los que quieren el paquete completo y beneficios extra.',
-        activa: true,
-      },
-      {
-        nombre: 'VIP',
-        precio: 40000,
-        incluye: ['Cortes ilimitados', 'Barba ilimitada', 'Cejas y nariz', 'Tratamiento capilar semanal', 'Productos premium incluidos', 'Acceso a eventos exclusivos'],
-        beneficios: [
-          { categoria: 'Gastronomía', icono: '🍺', items: ['20% de descuento en todos los locales adheridos', '2x1 en bares seleccionados', 'Bebida premium de cortesía'] },
-          { categoria: 'Estética', icono: '💈', items: ['Tratamientos capilares ilimitados', 'Kit de productos premium trimestral', 'Asesoría de imagen personal'] },
-          { categoria: 'Bienestar', icono: '🏋️', items: ['Pase libre en gimnasios adheridos', 'Sesión de masajes mensual'] },
-          { categoria: 'Exclusivo', icono: '⭐', items: ['Acceso a eventos VIP de la barbería', 'Descuentos en indumentaria adherida', 'Tarjeta de presentación personalizada'] },
-        ],
-        descripcion: 'La experiencia El Jefe sin límites. Acceso total a servicios y beneficios.',
-        activa: true,
-      },
+    const fallback: BeneficioAgrupado[] = [
+      { categoria: 'Gastronomía', icono: '🍔', items: ['Descuentos exclusivos en gastronomía'] },
+      { categoria: 'Fitness & bienestar', icono: '🏋️', items: ['Descuentos en gimnasios y estética'] },
+      { categoria: 'Indumentaria', icono: '👕', items: ['Descuentos en indumentaria'] },
     ];
-    this.planes.set(fallback);
-    this.agruparBeneficios(fallback);
+    this.beneficiosAgrupados.set(fallback);
   }
 
-  /** Agrupa beneficios de todos los planes por categoría, comparando case-insensitive para eliminar duplicados */
+  /** Agrupa beneficios de todos los planes por categoría, deduplicando case-insensitive */
   private agruparBeneficios(planes: Membresia[]) {
     const map = new Map<string, { icono: string; seen: Set<string>; items: string[] }>();
 
     for (const plan of planes) {
       for (const ben of plan.beneficios) {
-        if (!map.has(ben.categoria)) {
-          map.set(ben.categoria, { icono: ben.icono, seen: new Set(), items: [] });
+        if (!ben.activo) continue;
+        const catKey = ben.categoria;
+        if (!map.has(catKey)) {
+          map.set(catKey, { icono: ben.icono, seen: new Set(), items: [] });
         }
-        const entry = map.get(ben.categoria)!;
+        const entry = map.get(catKey)!;
         if (!entry.icono && ben.icono) entry.icono = ben.icono;
-        for (const item of ben.items) {
-          const key = item.trim().toLowerCase();
-          if (!entry.seen.has(key)) {
-            entry.seen.add(key);
-            entry.items.push(item.trim());
-          }
+        const key = ben.nombre.trim().toLowerCase();
+        if (!entry.seen.has(key)) {
+          entry.seen.add(key);
+          entry.items.push(ben.nombre.trim());
         }
       }
     }
 
-    const agrupados: Beneficio[] = [];
+    const agrupados: BeneficioAgrupado[] = [];
     map.forEach((val, key) => {
       agrupados.push({ categoria: key, icono: val.icono, items: val.items });
     });

@@ -50,7 +50,7 @@ import { Membresia } from '../../../models/cliente.model';
 
             <!-- Beneficios count + acciones -->
             <div class="px-5 py-3 border-t border-gray-700 flex items-center justify-between">
-              <span class="text-xs text-gray-500">{{ m.beneficios.length }} categorías de beneficios</span>
+              <span class="text-xs text-gray-500">{{ m.beneficios.length }} beneficios</span>
               <div class="flex gap-2">
                 <a [routerLink]="['/admin/membresias', m._id]"
                    class="text-xs px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors">

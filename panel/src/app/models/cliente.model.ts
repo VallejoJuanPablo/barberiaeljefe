@@ -13,24 +13,14 @@ export interface Cliente {
   createdAt?: string;
 }
 
-export interface MembresiaCheck {
-  activo: boolean;
-  nombre: string;
-  tipo: string;
-  fechaFin: string;
-  mensaje: string;
-  plan: {
-    precio: number;
-    incluye: string[];
-    beneficios: Beneficio[];
-    descripcion: string;
-  } | null;
-}
-
 export interface Beneficio {
+  _id?: string;
+  nombre: string;
   categoria: string;
   icono: string;
-  items: string[];
+  codigo: string;
+  activo: boolean;
+  createdAt?: string;
 }
 
 export interface Membresia {
@@ -42,4 +32,24 @@ export interface Membresia {
   descripcion: string;
   activa: boolean;
   createdAt?: string;
+}
+
+export interface BeneficioAgrupado {
+  categoria: string;
+  icono: string;
+  items: { nombre: string; codigo: string | null }[];
+}
+
+export interface MembresiaCheck {
+  activo: boolean;
+  nombre: string;
+  tipo: string;
+  fechaFin: string;
+  mensaje: string;
+  plan: {
+    precio: number;
+    incluye: string[];
+    beneficios: BeneficioAgrupado[];
+    descripcion: string;
+  } | null;
 }

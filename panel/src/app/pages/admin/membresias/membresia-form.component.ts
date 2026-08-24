@@ -1,7 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { MembresiaService } from '../../../services/membresia.service';
+import { BeneficioService } from '../../../services/beneficio.service';
 import { Beneficio } from '../../../models/cliente.model';
 
 @Component({
@@ -77,45 +78,41 @@ import { Beneficio } from '../../../models/cliente.model';
           }
         </div>
 
-        <!-- Beneficios -->
+        <!-- Beneficios (checkboxes agrupados por categoría) -->
         <div class="bg-gray-800 border border-gray-700 rounded-xl p-5 space-y-4">
           <div class="flex items-center justify-between">
             <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Beneficios</h2>
-            <button type="button" (click)="agregarCategoria()"
-                    class="text-xs px-3 py-1 bg-amber-500/10 text-amber-400 rounded-lg hover:bg-amber-500/20 transition-colors">
-              + Categoría
-            </button>
+            <span class="text-xs text-gray-500">{{ selectedBeneficioIds.size }} seleccionados</span>
           </div>
 
-          @for (ben of beneficios; track ben._uid; let catIdx = $index) {
-            <div class="border border-gray-600 rounded-lg p-4 space-y-3">
-              <div class="flex gap-2 items-end">
-                <div class="w-16">
-                  <label class="block text-xs text-gray-500 mb-1">Icono</label>
-                  <input type="text" [(ngModel)]="ben.icono" [name]="'icono_' + ben._uid"
-                         class="w-full px-2 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-center focus:outline-none focus:border-amber-500" />
-                </div>
-                <div class="flex-1">
-                  <label class="block text-xs text-gray-500 mb-1">Categoría</label>
-                  <input type="text" [(ngModel)]="ben.categoria" [name]="'cat_' + ben._uid"
-                         class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500"
-                         placeholder="Ej: Gastronomía" />
-                </div>
-                <button type="button" (click)="beneficios.splice(catIdx, 1)"
-                        class="px-2 py-2 text-gray-500 hover:text-red-400 transition-colors">✕</button>
-              </div>
+          @if (beneficiosAgrupados().length === 0) {
+            <p class="text-sm text-gray-500 text-center py-4">No hay beneficios creados. <a routerLink="/admin/beneficios/nuevo" class="text-amber-400 hover:underline">Crear uno</a></p>
+          }
 
-              @for (item of ben.items; track itemIdx; let itemIdx = $index) {
-                <div class="flex gap-2 pl-8">
-                  <input type="text" [(ngModel)]="ben.items[itemIdx]" [name]="'ben_' + ben._uid + '_item_' + itemIdx"
-                         class="flex-1 px-3 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500"
-                         placeholder="Beneficio..." />
-                  <button type="button" (click)="ben.items.splice(itemIdx, 1)"
-                          class="px-2 text-gray-500 hover:text-red-400 text-sm transition-colors">✕</button>
-                </div>
-              }
-              <button type="button" (click)="ben.items.push('')"
-                      class="ml-8 text-xs text-gray-500 hover:text-amber-400 transition-colors">+ Agregar beneficio</button>
+          @for (grupo of beneficiosAgrupados(); track grupo.categoria) {
+            <div class="border border-gray-700 rounded-lg p-4">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-lg">{{ grupo.icono }}</span>
+                <h3 class="text-sm font-semibold text-amber-400">{{ grupo.categoria }}</h3>
+              </div>
+              <div class="space-y-2">
+                @for (ben of grupo.items; track ben._id) {
+                  <label class="flex items-start gap-3 cursor-pointer group">
+                    <input type="checkbox"
+                           [checked]="selectedBeneficioIds.has(ben._id!)"
+                           (change)="toggleBeneficio(ben._id!)"
+                           class="w-4 h-4 mt-0.5 rounded accent-amber-500" />
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm text-gray-300 group-hover:text-white transition-colors">{{ ben.nombre }}</p>
+                      @if (ben.codigo) {
+                        <p class="text-xs text-gray-500 font-mono">{{ ben.codigo }}</p>
+                      }
+                    </div>
+                    <div class="w-2 h-2 rounded-full flex-shrink-0 mt-1.5"
+                         [class]="ben.activo ? 'bg-green-500' : 'bg-red-500'"></div>
+                  </label>
+                }
+              </div>
             </div>
           }
         </div>
@@ -137,6 +134,7 @@ import { Beneficio } from '../../../models/cliente.model';
 })
 export class MembresiaFormComponent implements OnInit {
   private readonly membresiaService = inject(MembresiaService);
+  private readonly beneficioService = inject(BeneficioService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -149,10 +147,26 @@ export class MembresiaFormComponent implements OnInit {
   descripcion = '';
   activa = true;
   incluye: string[] = [''];
-  beneficios: (Beneficio & { _uid: number })[] = [];
-  private uidCounter = 0;
+
+  allBeneficios = signal<Beneficio[]>([]);
+  selectedBeneficioIds = new Set<string>();
+
+  beneficiosAgrupados = computed(() => {
+    const todos = this.allBeneficios();
+    const map = new Map<string, { categoria: string; icono: string; items: Beneficio[] }>();
+    for (const ben of todos) {
+      if (!map.has(ben.categoria)) {
+        map.set(ben.categoria, { categoria: ben.categoria, icono: ben.icono, items: [] });
+      }
+      map.get(ben.categoria)!.items.push(ben);
+    }
+    return Array.from(map.values()).sort((a, b) => a.categoria.localeCompare(b.categoria));
+  });
 
   ngOnInit() {
+    // Cargar todos los beneficios disponibles
+    this.beneficioService.getAll().subscribe(data => this.allBeneficios.set(data));
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEdit = true;
@@ -163,7 +177,8 @@ export class MembresiaFormComponent implements OnInit {
         this.descripcion = m.descripcion;
         this.activa = m.activa;
         this.incluye = [...m.incluye];
-        this.beneficios = m.beneficios.map(b => ({ ...b, items: [...b.items], _uid: ++this.uidCounter }));
+        // Los beneficios vienen populados, extraer IDs
+        this.selectedBeneficioIds = new Set(m.beneficios.map(b => b._id!));
       });
     }
   }
@@ -172,8 +187,12 @@ export class MembresiaFormComponent implements OnInit {
     this.incluye.push('');
   }
 
-  agregarCategoria() {
-    this.beneficios.push({ categoria: '', icono: '', items: [''], _uid: ++this.uidCounter });
+  toggleBeneficio(id: string) {
+    if (this.selectedBeneficioIds.has(id)) {
+      this.selectedBeneficioIds.delete(id);
+    } else {
+      this.selectedBeneficioIds.add(id);
+    }
   }
 
   onSubmit() {
@@ -184,9 +203,7 @@ export class MembresiaFormComponent implements OnInit {
       descripcion: this.descripcion,
       activa: this.activa,
       incluye: this.incluye.filter(i => i.trim()),
-      beneficios: this.beneficios
-        .filter(b => b.categoria.trim())
-        .map(({ _uid, ...b }) => ({ ...b, items: b.items.filter(i => i.trim()) }))
+      beneficios: Array.from(this.selectedBeneficioIds)
     };
 
     const obs = this.isEdit

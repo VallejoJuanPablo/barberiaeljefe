@@ -169,9 +169,22 @@ import { MembresiaCheck } from '../../models/cliente.model';
                     <span class="text-base">{{ ben.icono }}</span>
                     <p class="text-xs tracking-wider uppercase gold-soft">{{ ben.categoria }}</p>
                   </div>
-                  <ul class="space-y-2">
-                    @for (item of ben.items; track item) {
-                      <li class="text-sm text-gray-300 pl-1">• {{ item }}</li>
+                  <ul class="space-y-2.5">
+                    @for (item of ben.items; track item.nombre) {
+                      <li class="text-sm text-gray-300 pl-1">
+                        <div class="flex items-start gap-2">
+                          <span class="gold text-xs mt-0.5">•</span>
+                          <div>
+                            <span>{{ item.nombre }}</span>
+                            @if (item.codigo) {
+                              <span class="ml-2 inline-block px-2 py-0.5 text-xs font-mono rounded-md"
+                                    style="background: rgba(201,164,76,0.12); color: #c9a44c;">
+                                {{ item.codigo }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+                      </li>
                     }
                   </ul>
                 </div>

@@ -40,6 +40,21 @@ export const routes: Routes = [
           import('./pages/admin/clientes/cliente-form.component').then(m => m.ClienteFormComponent)
       },
       {
+        path: 'beneficios',
+        loadComponent: () =>
+          import('./pages/admin/beneficios/beneficio-list.component').then(m => m.BeneficioListComponent)
+      },
+      {
+        path: 'beneficios/nuevo',
+        loadComponent: () =>
+          import('./pages/admin/beneficios/beneficio-form.component').then(m => m.BeneficioFormComponent)
+      },
+      {
+        path: 'beneficios/:id',
+        loadComponent: () =>
+          import('./pages/admin/beneficios/beneficio-form.component').then(m => m.BeneficioFormComponent)
+      },
+      {
         path: 'membresias',
         loadComponent: () =>
           import('./pages/admin/membresias/membresia-list.component').then(m => m.MembresiaListComponent)
