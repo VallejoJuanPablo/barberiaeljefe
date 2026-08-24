@@ -2,5 +2,9 @@
   "/api": {
     "target": "http://localhost:3200",
     "secure": false
+  },
+  "/uploads": {
+    "target": "http://localhost:3200",
+    "secure": false
   }
 }

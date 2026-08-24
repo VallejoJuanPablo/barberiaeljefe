@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const Marca = require('../models/Marca');
 
 const getMarcas = async (req, res) => {
@@ -21,7 +23,13 @@ const getMarcaById = async (req, res) => {
 
 const createMarca = async (req, res) => {
   try {
-    const marca = await Marca.create(req.body);
+    const data = { ...req.body };
+    if (req.file) {
+      data.logo = '/uploads/marcas/' + req.file.filename;
+    }
+    if (typeof data.activa === 'string') data.activa = data.activa === 'true';
+    if (typeof data.orden === 'string') data.orden = parseInt(data.orden, 10) || 0;
+    const marca = await Marca.create(data);
     res.status(201).json(marca);
   } catch (error) {
     res.status(400).json({ mensaje: 'Error al crear marca', error: error.message });
@@ -30,7 +38,19 @@ const createMarca = async (req, res) => {
 
 const updateMarca = async (req, res) => {
   try {
-    const marca = await Marca.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const data = { ...req.body };
+    if (typeof data.activa === 'string') data.activa = data.activa === 'true';
+    if (typeof data.orden === 'string') data.orden = parseInt(data.orden, 10) || 0;
+    if (req.file) {
+      // Borrar logo anterior si existe
+      const marcaAnterior = await Marca.findById(req.params.id);
+      if (marcaAnterior?.logo?.startsWith('/uploads/')) {
+        const oldPath = path.join(__dirname, '../../', marcaAnterior.logo);
+        fs.unlink(oldPath, () => {});
+      }
+      data.logo = '/uploads/marcas/' + req.file.filename;
+    }
+    const marca = await Marca.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true });
     if (!marca) return res.status(404).json({ mensaje: 'Marca no encontrada' });
     res.json(marca);
   } catch (error) {
@@ -42,6 +62,11 @@ const deleteMarca = async (req, res) => {
   try {
     const marca = await Marca.findByIdAndDelete(req.params.id);
     if (!marca) return res.status(404).json({ mensaje: 'Marca no encontrada' });
+    // Borrar archivo de logo si existe
+    if (marca.logo?.startsWith('/uploads/')) {
+      const filePath = path.join(__dirname, '../../', marca.logo);
+      fs.unlink(filePath, () => {});
+    }
     res.json({ mensaje: 'Marca eliminada' });
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al eliminar marca', error: error.message });

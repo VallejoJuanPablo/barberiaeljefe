@@ -31,24 +31,45 @@ import { MarcaService } from '../../../services/marca.service';
                    placeholder="Ej: Panter Gym" />
           </div>
 
+          <!-- Logo upload -->
           <div>
-            <label class="block text-sm text-gray-300 mb-1">Logo <span class="text-gray-500">(URL de imagen)</span></label>
-            <input type="text" [(ngModel)]="logo" name="logo"
-                   class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-amber-500"
-                   placeholder="https://ejemplo.com/logo.png" />
-            @if (logo) {
-              <div class="mt-3 flex items-center gap-3">
-                <img [src]="logo" alt="Preview" class="w-16 h-16 rounded-lg object-contain bg-white p-1.5" />
-                <span class="text-xs text-gray-500">Preview del logo</span>
+            <label class="block text-sm text-gray-300 mb-1">Logo</label>
+            <div class="flex items-start gap-4">
+              <!-- Preview -->
+              <div class="flex-shrink-0">
+                @if (logoPreview || logoActual) {
+                  <img [src]="logoPreview || logoActual" alt="Logo"
+                       class="w-20 h-20 rounded-xl object-contain bg-white p-2" />
+                } @else {
+                  <div class="w-20 h-20 rounded-xl bg-gray-700 flex items-center justify-center">
+                    <span class="text-3xl text-gray-500">🏷️</span>
+                  </div>
+                }
               </div>
-            }
+
+              <!-- Input -->
+              <div class="flex-1">
+                <label
+                  class="flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-600 hover:border-amber-500/50 cursor-pointer transition-colors">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span class="text-sm">{{ archivoSeleccionado ? archivoSeleccionado.name : 'Elegir imagen' }}</span>
+                  <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden" />
+                </label>
+                <p class="text-xs text-gray-500 mt-1.5">JPG, PNG, WebP o SVG. Máximo 5MB.</p>
+                @if (logoActual && !archivoSeleccionado) {
+                  <p class="text-xs text-amber-400/60 mt-1">Logo actual guardado</p>
+                }
+              </div>
+            </div>
           </div>
 
           <div>
             <label class="block text-sm text-gray-300 mb-1">Instagram</label>
             <input type="text" [(ngModel)]="instagram" name="instagram"
                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-amber-500"
-                   placeholder="@pantergym o https://instagram.com/pantergym" />
+                   placeholder="&#64;pantergym o https://instagram.com/pantergym" />
             <p class="text-xs text-gray-500 mt-1">Puede ser el &#64; o la URL completa</p>
           </div>
 
@@ -91,10 +112,13 @@ export class MarcaFormComponent implements OnInit {
   loading = false;
 
   nombre = '';
-  logo = '';
   instagram = '';
   orden = 0;
   activa = true;
+
+  logoActual = '';
+  logoPreview = '';
+  archivoSeleccionado: File | null = null;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -103,7 +127,7 @@ export class MarcaFormComponent implements OnInit {
       this.editId = id;
       this.marcaService.getById(id).subscribe(m => {
         this.nombre = m.nombre;
-        this.logo = m.logo;
+        this.logoActual = m.logo;
         this.instagram = m.instagram;
         this.orden = m.orden;
         this.activa = m.activa;
@@ -111,19 +135,37 @@ export class MarcaFormComponent implements OnInit {
     }
   }
 
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.archivoSeleccionado = file;
+
+    // Preview local
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.logoPreview = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
   onSubmit() {
     this.loading = true;
-    const data = {
-      nombre: this.nombre,
-      logo: this.logo,
-      instagram: this.instagram,
-      orden: this.orden,
-      activa: this.activa
-    };
+
+    const formData = new FormData();
+    formData.append('nombre', this.nombre);
+    formData.append('instagram', this.instagram);
+    formData.append('orden', String(this.orden));
+    formData.append('activa', String(this.activa));
+
+    if (this.archivoSeleccionado) {
+      formData.append('logo', this.archivoSeleccionado);
+    }
 
     const obs = this.isEdit
-      ? this.marcaService.update(this.editId, data)
-      : this.marcaService.create(data);
+      ? this.marcaService.update(this.editId, formData)
+      : this.marcaService.create(formData);
 
     obs.subscribe({
       next: () => this.router.navigate(['/admin/marcas']),

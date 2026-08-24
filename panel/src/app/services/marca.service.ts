@@ -16,12 +16,12 @@ export class MarcaService {
     return this.http.get<Marca>(`${this.baseUrl}/${id}`);
   }
 
-  create(marca: Partial<Marca>): Observable<Marca> {
-    return this.http.post<Marca>(this.baseUrl, marca);
+  create(formData: FormData): Observable<Marca> {
+    return this.http.post<Marca>(this.baseUrl, formData);
   }
 
-  update(id: string, marca: Partial<Marca>): Observable<Marca> {
-    return this.http.put<Marca>(`${this.baseUrl}/${id}`, marca);
+  update(id: string, formData: FormData): Observable<Marca> {
+    return this.http.put<Marca>(`${this.baseUrl}/${id}`, formData);
   }
 
   delete(id: string): Observable<void> {
