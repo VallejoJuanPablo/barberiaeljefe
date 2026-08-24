@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ClienteService } from '../../services/cliente.service';
-import { Membresia, Beneficio } from '../../models/cliente.model';
+import { MarcaService } from '../../services/marca.service';
+import { Membresia, Beneficio, Marca } from '../../models/cliente.model';
 
 interface BeneficioAgrupado {
   categoria: string;
@@ -158,6 +159,39 @@ interface BeneficioAgrupado {
         </section>
       }
 
+      <!-- MARCAS ALIADAS -->
+      @if (marcas().length > 0) {
+        <section class="px-5 pb-12 max-w-4xl mx-auto fade-in">
+          <div class="text-center mb-8">
+            <div class="h-px w-16 gold-line mx-auto mb-6"></div>
+            <p class="text-xs tracking-[0.2em] uppercase gold-soft mb-2">Nuestros aliados</p>
+            <h2 class="font-display text-2xl md:text-3xl text-white">Marcas que confían en El Jefe</h2>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            @for (marca of marcas(); track marca._id) {
+              <a [href]="instagramUrl(marca.instagram)" target="_blank" rel="noopener noreferrer"
+                 class="bg-card gold-border rounded-2xl p-5 flex flex-col items-center gap-3 hover:border-amber-500/50 transition-all duration-200 group cursor-pointer">
+                @if (marca.logo) {
+                  <img [src]="marca.logo" [alt]="marca.nombre"
+                       class="w-16 h-16 rounded-xl object-contain bg-white p-2 group-hover:scale-105 transition-transform" />
+                } @else {
+                  <div class="w-16 h-16 rounded-xl bg-gray-800 flex items-center justify-center">
+                    <span class="text-2xl">🏷️</span>
+                  </div>
+                }
+                <p class="text-sm text-white font-medium text-center">{{ marca.nombre }}</p>
+                @if (marca.instagram) {
+                  <p class="text-xs gold-soft group-hover:text-amber-400 transition-colors">
+                    {{ formatInstagram(marca.instagram) }}
+                  </p>
+                }
+              </a>
+            }
+          </div>
+        </section>
+      }
+
       <!-- CONTACTO -->
       <section class="px-5 pb-16 max-w-md mx-auto text-center fade-in">
         <div class="h-px w-16 gold-line mx-auto mb-8"></div>
@@ -201,10 +235,12 @@ interface BeneficioAgrupado {
 })
 export class LandingComponent implements OnInit {
   private readonly clienteService = inject(ClienteService);
+  private readonly marcaService = inject(MarcaService);
   private readonly whatsappNumber = '5493794275062';
 
   planes = signal<Membresia[]>([]);
   beneficiosAgrupados = signal<BeneficioAgrupado[]>([]);
+  marcas = signal<Marca[]>([]);
 
   ngOnInit() {
     this.clienteService.getPlanes().subscribe({
@@ -217,6 +253,11 @@ export class LandingComponent implements OnInit {
         }
       },
       error: () => this.usarFallback()
+    });
+
+    this.marcaService.getPublicas().subscribe({
+      next: (data) => this.marcas.set(data),
+      error: () => {}
     });
   }
 
@@ -256,6 +297,21 @@ export class LandingComponent implements OnInit {
     });
 
     this.beneficiosAgrupados.set(agrupados);
+  }
+
+  instagramUrl(ig: string): string {
+    if (!ig) return '#';
+    if (ig.startsWith('http')) return ig;
+    const handle = ig.replace(/^@/, '');
+    return `https://www.instagram.com/${handle}`;
+  }
+
+  formatInstagram(ig: string): string {
+    if (ig.startsWith('http')) {
+      const match = ig.match(/instagram\.com\/([^/?]+)/);
+      return match ? '@' + match[1] : ig;
+    }
+    return ig.startsWith('@') ? ig : '@' + ig;
   }
 
   whatsappUrl(msg: string): string {

@@ -34,6 +34,16 @@ export interface Membresia {
   createdAt?: string;
 }
 
+export interface Marca {
+  _id?: string;
+  nombre: string;
+  logo: string;
+  instagram: string;
+  activa: boolean;
+  orden: number;
+  createdAt?: string;
+}
+
 export interface BeneficioAgrupado {
   categoria: string;
   icono: string;

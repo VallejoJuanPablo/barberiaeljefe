@@ -55,6 +55,21 @@ export const routes: Routes = [
           import('./pages/admin/beneficios/beneficio-form.component').then(m => m.BeneficioFormComponent)
       },
       {
+        path: 'marcas',
+        loadComponent: () =>
+          import('./pages/admin/marcas/marca-list.component').then(m => m.MarcaListComponent)
+      },
+      {
+        path: 'marcas/nueva',
+        loadComponent: () =>
+          import('./pages/admin/marcas/marca-form.component').then(m => m.MarcaFormComponent)
+      },
+      {
+        path: 'marcas/:id',
+        loadComponent: () =>
+          import('./pages/admin/marcas/marca-form.component').then(m => m.MarcaFormComponent)
+      },
+      {
         path: 'membresias',
         loadComponent: () =>
           import('./pages/admin/membresias/membresia-list.component').then(m => m.MembresiaListComponent)

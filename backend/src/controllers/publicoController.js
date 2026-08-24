@@ -92,4 +92,16 @@ const getPlanes = async (req, res) => {
   }
 };
 
-module.exports = { checkMembresia, getPlanes };
+// GET /api/publico/marcas — Marcas activas (sin auth)
+const getMarcasPublicas = async (req, res) => {
+  try {
+    const Marca = require('../models/Marca');
+    const marcas = await Marca.find({ activa: true }).sort({ orden: 1, nombre: 1 });
+    res.charset = 'utf-8';
+    res.json(marcas);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al obtener marcas', error: error.message });
+  }
+};
+
+module.exports = { checkMembresia, getPlanes, getMarcasPublicas };

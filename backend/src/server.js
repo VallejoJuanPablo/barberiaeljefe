@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const clientesRoutes = require('./routes/clientes');
 const membresiasRoutes = require('./routes/membresias');
 const beneficiosRoutes = require('./routes/beneficios');
+const marcasRoutes = require('./routes/marcas');
 const publicoRoutes = require('./routes/publico');
 const authMiddleware = require('./middleware/auth');
 
@@ -28,6 +29,7 @@ app.use('/api/publico', publicoRoutes);
 app.use('/api/clientes', authMiddleware, clientesRoutes);
 app.use('/api/membresias', authMiddleware, membresiasRoutes);
 app.use('/api/beneficios', authMiddleware, beneficiosRoutes);
+app.use('/api/marcas', authMiddleware, marcasRoutes);
 
 // Health check
 app.get('/', (req, res) => {
