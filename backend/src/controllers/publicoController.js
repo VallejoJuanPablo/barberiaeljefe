@@ -75,12 +75,18 @@ const checkMembresia = async (req, res) => {
   }
 };
 
-// GET /api/publico/planes — Lista planes activos (sin auth)
+// GET /api/publico/planes — Lista planes activos (sin auth, sin códigos promocionales)
 const getPlanes = async (req, res) => {
   try {
     const planes = await Membresia.find({ activa: true }).populate('beneficios').sort({ precio: 1 });
+    // Ocultar códigos promocionales — solo se muestran al verificar membresía
+    const planesSinCodigos = planes.map(p => {
+      const obj = p.toObject();
+      obj.beneficios = obj.beneficios.map(({ codigo, ...ben }) => ben);
+      return obj;
+    });
     res.charset = 'utf-8';
-    res.json(planes);
+    res.json(planesSinCodigos);
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al obtener planes', error: error.message });
   }
