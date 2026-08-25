@@ -1,0 +1,81 @@
+# Archie — .claudeignore estándar
+# Excluir archivos pesados que no aportan contexto a Claude
+
+# Dependencias
+node_modules/
+vendor/
+.pnpm-store/
+
+# Builds y output
+dist/
+build/
+.angular/
+.next/
+.nuxt/
+out/
+coverage/
+.nyc_output/
+
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+composer.lock
+
+# Minified
+*.min.js
+*.min.css
+*.bundle.js
+*.chunk.js
+
+# Source maps
+*.map
+
+# Git
+.git/
+
+# Cache
+.cache/
+.parcel-cache/
+.turbo/
+.eslintcache
+
+# Docker volumes
+data/
+mongo-data/
+mysql-data/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Graphify output (Claude lo consulta via skill, no directo)
+graphify-out/
+
+# Uploads y assets pesados
+uploads/
+*.pdf
+*.zip
+*.tar.gz
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+*.woff
+*.woff2
+*.ttf
+*.eot
+
