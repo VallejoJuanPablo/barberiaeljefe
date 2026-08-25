@@ -1,7 +1,12 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const router = express.Router();
+
+// Asegurar que el directorio de uploads exista
+const uploadsDir = path.join(__dirname, '../../uploads/marcas');
+fs.mkdirSync(uploadsDir, { recursive: true });
 const {
   getMarcas,
   getMarcaById,
@@ -13,7 +18,7 @@ const {
 // Configurar multer para logos de marcas
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../uploads/marcas'));
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
