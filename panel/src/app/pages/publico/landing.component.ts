@@ -88,7 +88,7 @@ interface BeneficioAgrupado {
       <!-- HERO -->
       <section class="flex flex-col items-center pt-16 pb-12 px-5 text-center">
         <img src="/logo.png" alt="El Jefe" class="w-44 mx-auto mb-6" />
-        <h1 class="font-display text-4xl md:text-5xl text-white mb-3">Barbería <span class="gold">El Jefe</span></h1>
+        <h1 class="font-display text-4xl md:text-5xl text-white mb-3">Comunidad <span class="gold">El Jefe</span></h1>
         <p class="text-sm md:text-base tracking-widest uppercase gold-soft mb-6">Comunidad exclusiva</p>
         <div class="h-px w-24 gold-line mb-6"></div>
         <p class="text-gray-400 max-w-md text-sm leading-relaxed">
