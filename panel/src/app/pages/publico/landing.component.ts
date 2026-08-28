@@ -97,34 +97,34 @@ interface BeneficioAgrupado {
         </p>
       </section>
 
-      <!-- POR QUÉ ELEGIRNOS -->
+      <!-- LA COMUNIDAD -->
       <section class="px-5 pb-12 max-w-3xl mx-auto fade-in">
         <div class="text-center mb-8">
           <div class="h-px w-16 gold-line mx-auto mb-6"></div>
-          <p class="text-xs tracking-[0.2em] uppercase gold-soft mb-2">La experiencia</p>
-          <h2 class="font-display text-2xl md:text-3xl text-white">¿Por qué El Jefe?</h2>
+          <p class="text-xs tracking-[0.2em] uppercase gold-soft mb-2">La comunidad</p>
+          <h2 class="font-display text-2xl md:text-3xl text-white">Forma parte de la comunidad <span class="gold">El Jefe</span></h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div class="text-center">
             <div class="w-12 h-12 rounded-full gold-border flex items-center justify-center mx-auto mb-3">
               <span class="gold text-lg">01</span>
             </div>
-            <p class="text-sm text-white font-semibold mb-1">Profesionales</p>
-            <p class="text-xs text-gray-500">Barberos con experiencia y capacitación constante</p>
+            <p class="text-sm text-white font-semibold mb-1">Beneficios Únicos</p>
+            <p class="text-xs text-gray-500">Descuentos y promociones exclusivas en gastronomía, estética, entretenimiento y más.</p>
           </div>
           <div class="text-center">
             <div class="w-12 h-12 rounded-full gold-border flex items-center justify-center mx-auto mb-3">
               <span class="gold text-lg">02</span>
             </div>
-            <p class="text-sm text-white font-semibold mb-1">Ambiente</p>
-            <p class="text-xs text-gray-500">Un espacio pensado para que te relajes y disfrutes</p>
+            <p class="text-sm text-white font-semibold mb-1">Comunidad Activa</p>
+            <p class="text-xs text-gray-500">Un espacio diseñado para conectar, disfrutar y acceder a experiencias pensadas a tu medida.</p>
           </div>
           <div class="text-center">
             <div class="w-12 h-12 rounded-full gold-border flex items-center justify-center mx-auto mb-3">
               <span class="gold text-lg">03</span>
             </div>
-            <p class="text-sm text-white font-semibold mb-1">Beneficios</p>
-            <p class="text-xs text-gray-500">Descuentos exclusivos en gastronomía, estética y más</p>
+            <p class="text-sm text-white font-semibold mb-1">Experiencia VIP</p>
+            <p class="text-xs text-gray-500">Atención preferencial y ventajas especiales en toda nuestra red de comercios adheridos.</p>
           </div>
         </div>
       </section>
