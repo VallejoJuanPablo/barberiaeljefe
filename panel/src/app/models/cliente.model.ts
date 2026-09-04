@@ -50,7 +50,7 @@ export interface BeneficioAgrupado {
   items: { nombre: string; codigo: string | null }[];
 }
 
-export interface OfertaRelampago {
+export interface BeneficioRelampago {
   _id?: string;
   titulo: string;
   descripcion: string;
