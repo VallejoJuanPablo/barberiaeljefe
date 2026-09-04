@@ -10,11 +10,8 @@ const beneficioRelampagoSchema = new mongoose.Schema({
 });
 
 // Validar que fechaHasta >= fechaDesde
-beneficioRelampagoSchema.pre('validate', function (next) {
-  if (this.fechaHasta && this.fechaDesde && this.fechaHasta < this.fechaDesde) {
-    this.invalidate('fechaHasta', 'La fecha hasta debe ser igual o posterior a la fecha desde');
-  }
-  next();
-});
+beneficioRelampagoSchema.path('fechaHasta').validate(function (value) {
+  return !this.fechaDesde || !value || value >= this.fechaDesde;
+}, 'La fecha hasta debe ser igual o posterior a la fecha desde');
 
 module.exports = mongoose.model('BeneficioRelampago', beneficioRelampagoSchema);
