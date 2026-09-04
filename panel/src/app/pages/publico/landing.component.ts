@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ClienteService } from '../../services/cliente.service';
 import { MarcaService } from '../../services/marca.service';
-import { Membresia, Beneficio, Marca } from '../../models/cliente.model';
+import { BeneficioRelampagoService } from '../../services/beneficio-relampago.service';
+import { Membresia, Beneficio, Marca, BeneficioRelampago } from '../../models/cliente.model';
 
 interface BeneficioAgrupado {
   categoria: string;
@@ -78,6 +79,35 @@ interface BeneficioAgrupado {
       animation: none;
       transform: scale(1.1);
     }
+
+    .relampago-card {
+      background: linear-gradient(135deg, #1a1000 0%, #0c0c0c 50%, #1a0800 100%);
+      border: 1px solid rgba(201,164,76,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    .relampago-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #c9a44c, transparent);
+    }
+    .relampago-urgente {
+      border-color: rgba(239,68,68,0.4);
+    }
+    .relampago-urgente::before {
+      background: linear-gradient(90deg, transparent, #ef4444, transparent);
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    .pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
   `],
   template: `
     <div class="min-h-screen bg-black relative overflow-hidden">
@@ -128,6 +158,48 @@ interface BeneficioAgrupado {
           </div>
         </div>
       </section>
+
+      <!-- BENEFICIOS RELÁMPAGO -->
+      @if (beneficiosRelampago().length > 0) {
+        <section class="px-5 pb-12 max-w-4xl mx-auto fade-in">
+          <div class="text-center mb-8">
+            <div class="h-px w-16 gold-line mx-auto mb-6"></div>
+            <p class="text-xs tracking-[0.2em] uppercase gold-soft mb-2">Tiempo limitado</p>
+            <h2 class="font-display text-2xl md:text-3xl text-white">
+              <span class="gold">⚡</span> Beneficios Relámpago
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            @for (ben of beneficiosRelampago(); track ben._id) {
+              <div class="relampago-card rounded-2xl px-6 py-5"
+                   [class.relampago-urgente]="esUrgente(ben)">
+                <div class="flex items-start gap-3 mb-3">
+                  <span class="text-2xl">⚡</span>
+                  <div class="flex-1">
+                    <h3 class="font-display text-lg gold">{{ ben.titulo }}</h3>
+                    <p class="text-sm text-gray-300 mt-1">{{ ben.descripcion }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-800">
+                  <span class="text-xs text-gray-500">
+                    Hasta {{ formatFechaOferta(ben.fechaHasta) }}
+                  </span>
+                  @if (esUrgente(ben)) {
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 font-medium pulse-glow">
+                      ¡Últimas horas!
+                    </span>
+                  } @else {
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-medium">
+                      {{ diasRestantes(ben) }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
 
       <!-- BENEFICIOS AGRUPADOS POR CATEGORÍA -->
       @if (beneficiosAgrupados().length > 0) {
@@ -236,11 +308,13 @@ interface BeneficioAgrupado {
 export class LandingComponent implements OnInit {
   private readonly clienteService = inject(ClienteService);
   private readonly marcaService = inject(MarcaService);
+  private readonly beneficioRelampagoService = inject(BeneficioRelampagoService);
   private readonly whatsappNumber = '5493794275062';
 
   planes = signal<Membresia[]>([]);
   beneficiosAgrupados = signal<BeneficioAgrupado[]>([]);
   marcas = signal<Marca[]>([]);
+  beneficiosRelampago = signal<BeneficioRelampago[]>([]);
 
   ngOnInit() {
     this.clienteService.getPlanes().subscribe({
@@ -257,6 +331,11 @@ export class LandingComponent implements OnInit {
 
     this.marcaService.getPublicas().subscribe({
       next: (data) => this.marcas.set(data),
+      error: () => {}
+    });
+
+    this.beneficioRelampagoService.getVigentes().subscribe({
+      next: (data) => this.beneficiosRelampago.set(data),
       error: () => {}
     });
   }
@@ -316,5 +395,20 @@ export class LandingComponent implements OnInit {
 
   whatsappUrl(msg: string): string {
     return `https://wa.me/${this.whatsappNumber}?text=${encodeURIComponent(msg)}`;
+  }
+
+  esUrgente(ben: BeneficioRelampago): boolean {
+    const horasRestantes = (new Date(ben.fechaHasta).getTime() - Date.now()) / (1000 * 60 * 60);
+    return horasRestantes <= 24 && horasRestantes > 0;
+  }
+
+  diasRestantes(ben: BeneficioRelampago): string {
+    const dias = Math.ceil((new Date(ben.fechaHasta).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    if (dias <= 1) return 'Último día';
+    return `${dias} días restantes`;
+  }
+
+  formatFechaOferta(fecha: string): string {
+    return new Date(fecha).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
   }
 }

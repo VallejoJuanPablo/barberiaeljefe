@@ -104,4 +104,21 @@ const getMarcasPublicas = async (req, res) => {
   }
 };
 
-module.exports = { checkMembresia, getPlanes, getMarcasPublicas };
+// GET /api/publico/beneficios-relampago — Beneficios relámpago vigentes (sin auth)
+const getBeneficiosRelampagoVigentes = async (req, res) => {
+  try {
+    const BeneficioRelampago = require('../models/BeneficioRelampago');
+    const ahora = new Date();
+    const beneficios = await BeneficioRelampago.find({
+      activa: true,
+      fechaDesde: { $lte: ahora },
+      fechaHasta: { $gte: ahora }
+    }).sort({ fechaHasta: 1 });
+    res.charset = 'utf-8';
+    res.json(beneficios);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al obtener beneficios relámpago', error: error.message });
+  }
+};
+
+module.exports = { checkMembresia, getPlanes, getMarcasPublicas, getBeneficiosRelampagoVigentes };

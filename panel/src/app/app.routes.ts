@@ -83,6 +83,21 @@ export const routes: Routes = [
         path: 'membresias/:id',
         loadComponent: () =>
           import('./pages/admin/membresias/membresia-form.component').then(m => m.MembresiaFormComponent)
+      },
+      {
+        path: 'beneficios-relampago',
+        loadComponent: () =>
+          import('./pages/admin/beneficios-relampago/beneficio-relampago-list.component').then(m => m.BeneficioRelampagoListComponent)
+      },
+      {
+        path: 'beneficios-relampago/nuevo',
+        loadComponent: () =>
+          import('./pages/admin/beneficios-relampago/beneficio-relampago-form.component').then(m => m.BeneficioRelampagoFormComponent)
+      },
+      {
+        path: 'beneficios-relampago/:id',
+        loadComponent: () =>
+          import('./pages/admin/beneficios-relampago/beneficio-relampago-form.component').then(m => m.BeneficioRelampagoFormComponent)
       }
     ]
   },

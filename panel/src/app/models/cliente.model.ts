@@ -50,6 +50,16 @@ export interface BeneficioAgrupado {
   items: { nombre: string; codigo: string | null }[];
 }
 
+export interface BeneficioRelampago {
+  _id?: string;
+  titulo: string;
+  descripcion: string;
+  fechaDesde: string;
+  fechaHasta: string;
+  activa: boolean;
+  createdAt?: string;
+}
+
 export interface MembresiaCheck {
   activo: boolean;
   nombre: string;
