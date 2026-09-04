@@ -83,6 +83,21 @@ export const routes: Routes = [
         path: 'membresias/:id',
         loadComponent: () =>
           import('./pages/admin/membresias/membresia-form.component').then(m => m.MembresiaFormComponent)
+      },
+      {
+        path: 'ofertas',
+        loadComponent: () =>
+          import('./pages/admin/ofertas/oferta-list.component').then(m => m.OfertaListComponent)
+      },
+      {
+        path: 'ofertas/nueva',
+        loadComponent: () =>
+          import('./pages/admin/ofertas/oferta-form.component').then(m => m.OfertaFormComponent)
+      },
+      {
+        path: 'ofertas/:id',
+        loadComponent: () =>
+          import('./pages/admin/ofertas/oferta-form.component').then(m => m.OfertaFormComponent)
       }
     ]
   },

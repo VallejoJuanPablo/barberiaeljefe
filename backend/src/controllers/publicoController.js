@@ -104,4 +104,21 @@ const getMarcasPublicas = async (req, res) => {
   }
 };
 
-module.exports = { checkMembresia, getPlanes, getMarcasPublicas };
+// GET /api/publico/ofertas — Ofertas relámpago vigentes (sin auth)
+const getOfertasVigentes = async (req, res) => {
+  try {
+    const OfertaRelampago = require('../models/OfertaRelampago');
+    const ahora = new Date();
+    const ofertas = await OfertaRelampago.find({
+      activa: true,
+      fechaDesde: { $lte: ahora },
+      fechaHasta: { $gte: ahora }
+    }).sort({ fechaHasta: 1 });
+    res.charset = 'utf-8';
+    res.json(ofertas);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al obtener ofertas', error: error.message });
+  }
+};
+
+module.exports = { checkMembresia, getPlanes, getMarcasPublicas, getOfertasVigentes };
