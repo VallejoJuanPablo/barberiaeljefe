@@ -110,6 +110,26 @@ import { Cliente } from '../../../models/cliente.model';
                     </td>
                     <td class="px-4 py-3 text-right">
                       <div class="flex items-center justify-end gap-2">
+                        @if (!cliente.membresia.activa) {
+                          <button
+                            (click)="renovar(cliente)"
+                            [disabled]="renovando() === cliente._id"
+                            class="flex items-center gap-1 px-2.5 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                            title="Renovar 1 mes"
+                          >
+                            @if (renovando() === cliente._id) {
+                              <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                              </svg>
+                            } @else {
+                              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              </svg>
+                            }
+                            Renovar
+                          </button>
+                        }
                         <a
                           [routerLink]="['/admin/clientes', cliente._id]"
                           class="p-1.5 text-gray-400 hover:text-amber-400 hover:bg-gray-700 rounded transition-colors"
@@ -241,6 +261,7 @@ export class ClienteListComponent implements OnInit {
   eliminando = signal(false);
   qrCodigo = signal<string | null>(null);
   copiado = signal(false);
+  renovando = signal<string | null>(null);
 
   clientesFiltrados = computed(() => {
     const b = this.busqueda.toLowerCase().trim();
@@ -306,6 +327,37 @@ export class ClienteListComponent implements OnInit {
       // Fallback: abrir en nueva pestaña para guardar manualmente
       window.open('/img/frente_' + this.qrCodigo() + '.jpg', '_blank');
     }
+  }
+
+  renovar(cliente: Cliente) {
+    if (!cliente._id) return;
+    this.renovando.set(cliente._id);
+
+    const hoy = new Date();
+    const mesProximo = new Date();
+    mesProximo.setMonth(mesProximo.getMonth() + 1);
+
+    const datos = {
+      membresia: {
+        ...cliente.membresia,
+        activa: true,
+        fechaInicio: hoy.toISOString(),
+        fechaFin: mesProximo.toISOString()
+      }
+    };
+
+    this.clienteService.update(cliente._id, datos).subscribe({
+      next: (actualizado) => {
+        this.clientes.update(list =>
+          list.map(c => c._id === cliente._id ? actualizado : c)
+        );
+        this.renovando.set(null);
+      },
+      error: () => {
+        this.error.set('Error al renovar la membresía. Intentá de nuevo.');
+        this.renovando.set(null);
+      }
+    });
   }
 
   confirmarEliminar(cliente: Cliente) {
