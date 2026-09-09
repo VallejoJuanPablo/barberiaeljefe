@@ -12,12 +12,15 @@ const marcasRoutes = require('./routes/marcas');
 const beneficiosRelampagoRoutes = require('./routes/beneficiosRelampago');
 const publicoRoutes = require('./routes/publico');
 const authMiddleware = require('./middleware/auth');
+const { iniciarCronMembresias } = require('./jobs/desactivarMembresias');
 
 const app = express();
 const PORT = process.env.PORT || 3200;
 
-// Conectar a MongoDB
-connectDB();
+// Conectar a MongoDB e iniciar jobs
+connectDB().then(() => {
+  iniciarCronMembresias();
+});
 
 // Middlewares
 app.use(cors());
