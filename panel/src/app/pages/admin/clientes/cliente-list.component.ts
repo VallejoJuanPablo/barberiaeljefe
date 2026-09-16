@@ -27,9 +27,9 @@ import { Cliente } from '../../../models/cliente.model';
         </a>
       </div>
 
-      <!-- Search -->
-      <div class="mb-4">
-        <div class="relative">
+      <!-- Search + Filtro estado -->
+      <div class="flex flex-col sm:flex-row gap-3 mb-4">
+        <div class="relative flex-1">
           <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
@@ -39,6 +39,31 @@ import { Cliente } from '../../../models/cliente.model';
             placeholder="Buscar por nombre o código..."
             class="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-400 pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:border-amber-500 transition-colors"
           />
+        </div>
+        <div class="flex bg-gray-800 border border-gray-700 rounded-lg p-1 gap-1">
+          <button
+            (click)="filtroEstado.set('todos')"
+            class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+            [class]="filtroEstado() === 'todos' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'"
+          >
+            Todos
+          </button>
+          <button
+            (click)="filtroEstado.set('activos')"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+            [class]="filtroEstado() === 'activos' ? 'bg-green-900/60 text-green-400 border border-green-800' : 'text-gray-400 hover:text-white'"
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+            Activos
+          </button>
+          <button
+            (click)="filtroEstado.set('inactivos')"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+            [class]="filtroEstado() === 'inactivos' ? 'bg-red-900/60 text-red-400 border border-red-800' : 'text-gray-400 hover:text-white'"
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+            Inactivos
+          </button>
         </div>
       </div>
 
@@ -257,6 +282,7 @@ export class ClienteListComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   busqueda = '';
+  filtroEstado = signal<'todos' | 'activos' | 'inactivos'>('todos');
   clienteAEliminar = signal<Cliente | null>(null);
   eliminando = signal(false);
   qrCodigo = signal<string | null>(null);
@@ -264,11 +290,15 @@ export class ClienteListComponent implements OnInit {
   renovando = signal<string | null>(null);
 
   clientesFiltrados = computed(() => {
+    let lista = this.clientes();
+    const estado = this.filtroEstado();
+    if (estado === 'activos') lista = lista.filter(c => c.membresia.activa);
+    else if (estado === 'inactivos') lista = lista.filter(c => !c.membresia.activa);
     const b = this.busqueda.toLowerCase().trim();
-    if (!b) return this.clientes();
-    return this.clientes().filter(c =>
+    if (b) lista = lista.filter(c =>
       c.nombre.toLowerCase().includes(b) || c.codigo.toLowerCase().includes(b)
     );
+    return lista;
   });
 
   ngOnInit() {
