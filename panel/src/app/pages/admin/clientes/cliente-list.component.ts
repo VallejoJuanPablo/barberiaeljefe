@@ -80,8 +80,100 @@ import { Cliente } from '../../../models/cliente.model';
           <div class="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       } @else {
-        <!-- Table -->
-        <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+        <!-- Cards mobile -->
+        <div class="space-y-3 md:hidden">
+          @for (cliente of clientesFiltrados(); track cliente._id) {
+            <div class="bg-gray-800 border border-gray-700 rounded-xl p-4">
+              <div class="flex items-start justify-between mb-3">
+                <div class="min-w-0">
+                  <p class="text-white font-semibold truncate">{{ cliente.nombre }}</p>
+                  <p class="text-amber-400 font-mono text-sm">{{ cliente.codigo }}</p>
+                </div>
+                @if (cliente.membresia.activa) {
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900/50 text-green-400 border border-green-800 flex-shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                    Activa
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/50 text-red-400 border border-red-800 flex-shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                    Inactiva
+                  </span>
+                }
+              </div>
+              <div class="flex items-center gap-3 mb-3 text-sm">
+                @if (cliente.telefono) {
+                  <span class="text-gray-400">{{ cliente.telefono }}</span>
+                }
+                @if (cliente.membresia.tipo) {
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize"
+                    [class]="badgeMembresia(cliente.membresia.tipo)"
+                  >
+                    {{ cliente.membresia.tipo }}
+                  </span>
+                }
+              </div>
+              <div class="flex items-center gap-2 pt-3 border-t border-gray-700">
+                <button
+                  (click)="mostrarQR(cliente.codigo)"
+                  class="flex items-center gap-1.5 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-medium rounded-lg transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm14 3h.01M17 14h3v3h-3v-3zm0 4h3v3h-3v-3zm-4 0h3v3h-3v-3zm-4-4h.01" />
+                  </svg>
+                  QR
+                </button>
+                @if (!cliente.membresia.activa) {
+                  <button
+                    (click)="renovar(cliente)"
+                    [disabled]="renovando() === cliente._id"
+                    class="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    @if (renovando() === cliente._id) {
+                      <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                      </svg>
+                    } @else {
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    }
+                    Renovar
+                  </button>
+                }
+                <div class="flex-1"></div>
+                <a
+                  [routerLink]="['/admin/clientes', cliente._id]"
+                  class="p-2 text-gray-400 hover:text-amber-400 hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </a>
+                <button
+                  (click)="confirmarEliminar(cliente)"
+                  class="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          } @empty {
+            <div class="bg-gray-800 border border-gray-700 rounded-xl px-4 py-12 text-center text-gray-500">
+              <div class="flex flex-col items-center gap-2">
+                <span class="text-4xl">✂️</span>
+                <p class="text-sm">No hay clientes registrados</p>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Table desktop -->
+        <div class="hidden md:block bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead>
