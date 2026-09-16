@@ -48,18 +48,30 @@ import { Beneficio } from '../../../models/cliente.model';
 
           <div class="space-y-2">
             @for (ben of grupo.items; track ben._id) {
-              <div class="bg-gray-800 border border-gray-700 rounded-xl px-5 py-3 flex items-center justify-between hover:border-amber-500/30 transition-colors">
-                <div class="flex items-center gap-3 flex-1 min-w-0">
-                  <div class="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                       [class]="ben.activo ? 'bg-green-500' : 'bg-red-500'"></div>
-                  <div class="min-w-0">
-                    <p class="text-sm text-white truncate">{{ ben.nombre }}</p>
-                    @if (ben.codigo) {
-                      <p class="text-xs text-amber-400 font-mono mt-0.5">{{ ben.codigo }}</p>
-                    }
+              <div class="bg-gray-800 border border-gray-700 rounded-xl px-5 py-3 hover:border-amber-500/30 transition-colors">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3 flex-1 min-w-0">
+                    <div class="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                         [class]="ben.activo ? 'bg-green-500' : 'bg-red-500'"></div>
+                    <div class="min-w-0">
+                      <p class="text-sm text-white truncate">{{ ben.nombre }}</p>
+                      @if (ben.codigo) {
+                        <p class="text-xs text-amber-400 font-mono mt-0.5">{{ ben.codigo }}</p>
+                      }
+                    </div>
+                  </div>
+                  <div class="hidden sm:flex gap-2 flex-shrink-0">
+                    <a [routerLink]="['/admin/beneficios', ben._id]"
+                       class="text-xs px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors">
+                      Editar
+                    </a>
+                    <button (click)="eliminar(ben)"
+                            class="text-xs px-3 py-1.5 bg-gray-700 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-lg transition-colors">
+                      Eliminar
+                    </button>
                   </div>
                 </div>
-                <div class="flex gap-2 flex-shrink-0 ml-3">
+                <div class="flex gap-2 mt-2 sm:hidden">
                   <a [routerLink]="['/admin/beneficios', ben._id]"
                      class="text-xs px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors">
                     Editar

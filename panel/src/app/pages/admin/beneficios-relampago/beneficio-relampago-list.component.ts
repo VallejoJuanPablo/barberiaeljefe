@@ -49,9 +49,9 @@ import { BeneficioRelampago } from '../../../models/cliente.model';
       <div class="space-y-3">
         @for (ben of beneficiosFiltrados(); track ben._id) {
           <div class="bg-gray-800 border border-gray-700 rounded-xl px-5 py-4 hover:border-amber-500/30 transition-colors">
-            <div class="flex items-start justify-between gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
               <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
                   <span class="text-sm font-semibold text-white">{{ ben.titulo }}</span>
                   <span class="text-xs px-2 py-0.5 rounded-full font-medium"
                         [class]="estadoClass(ben)">
@@ -59,7 +59,7 @@ import { BeneficioRelampago } from '../../../models/cliente.model';
                   </span>
                 </div>
                 <p class="text-sm text-gray-400 mb-2">{{ ben.descripcion }}</p>
-                <div class="flex gap-4 text-xs text-gray-500">
+                <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
                   <span>Desde: {{ formatFecha(ben.fechaDesde) }}</span>
                   <span>Hasta: {{ formatFecha(ben.fechaHasta) }}</span>
                 </div>
