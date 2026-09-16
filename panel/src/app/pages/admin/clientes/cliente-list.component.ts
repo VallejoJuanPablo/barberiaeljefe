@@ -11,14 +11,14 @@ import { Cliente } from '../../../models/cliente.model';
   template: `
     <div class="p-6 min-h-full">
       <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
           <h2 class="text-2xl font-bold text-white">Clientes</h2>
           <p class="text-gray-400 text-sm mt-1">{{ clientesFiltrados().length }} cliente(s) registrados</p>
         </div>
         <a
           routerLink="/admin/clientes/nuevo"
-          class="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold px-4 py-2 rounded-lg transition-colors duration-150"
+          class="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold px-4 py-2 rounded-lg transition-colors duration-150"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
