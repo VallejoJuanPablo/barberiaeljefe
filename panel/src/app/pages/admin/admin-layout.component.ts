@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -8,8 +8,20 @@ import { AuthService } from '../../services/auth.service';
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   template: `
     <div class="flex h-screen bg-gray-900 text-white">
+      <!-- Backdrop mobile -->
+      @if (sidebarOpen()) {
+        <div
+          class="fixed inset-0 bg-black/60 z-30 md:hidden"
+          (click)="sidebarOpen.set(false)"
+        ></div>
+      }
+
       <!-- Sidebar -->
-      <aside class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+      <aside
+        class="fixed inset-y-0 left-0 z-40 w-64 bg-gray-800 border-r border-gray-700 flex flex-col transition-transform duration-200 md:static md:translate-x-0"
+        [class.translate-x-0]="sidebarOpen()"
+        [class.-translate-x-full]="!sidebarOpen()"
+      >
         <!-- Logo -->
         <div class="p-6 border-b border-gray-700">
           <div class="flex items-center gap-3">
@@ -27,6 +39,7 @@ import { AuthService } from '../../services/auth.service';
             routerLink="/admin/clientes"
             routerLinkActive="bg-amber-500 text-gray-900 font-semibold"
             [routerLinkActiveOptions]="{ exact: false }"
+            (click)="sidebarOpen.set(false)"
             class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -38,6 +51,7 @@ import { AuthService } from '../../services/auth.service';
             routerLink="/admin/beneficios"
             routerLinkActive="bg-amber-500 text-gray-900 font-semibold"
             [routerLinkActiveOptions]="{ exact: false }"
+            (click)="sidebarOpen.set(false)"
             class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -49,6 +63,7 @@ import { AuthService } from '../../services/auth.service';
             routerLink="/admin/marcas"
             routerLinkActive="bg-amber-500 text-gray-900 font-semibold"
             [routerLinkActiveOptions]="{ exact: false }"
+            (click)="sidebarOpen.set(false)"
             class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -60,6 +75,7 @@ import { AuthService } from '../../services/auth.service';
             routerLink="/admin/membresias"
             routerLinkActive="bg-amber-500 text-gray-900 font-semibold"
             [routerLinkActiveOptions]="{ exact: false }"
+            (click)="sidebarOpen.set(false)"
             class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -71,6 +87,7 @@ import { AuthService } from '../../services/auth.service';
             routerLink="/admin/beneficios-relampago"
             routerLinkActive="bg-amber-500 text-gray-900 font-semibold"
             [routerLinkActiveOptions]="{ exact: false }"
+            (click)="sidebarOpen.set(false)"
             class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -97,6 +114,18 @@ import { AuthService } from '../../services/auth.service';
 
       <!-- Main content -->
       <main class="flex-1 overflow-auto">
+        <!-- Top bar mobile -->
+        <div class="sticky top-0 z-20 flex items-center gap-3 bg-gray-900 border-b border-gray-700 px-4 py-3 md:hidden">
+          <button
+            (click)="sidebarOpen.set(true)"
+            class="p-2 -ml-2 text-gray-400 hover:text-white rounded-lg transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <span class="text-lg font-bold text-amber-400">✂️ El Jefe</span>
+        </div>
         <router-outlet />
       </main>
     </div>
@@ -104,4 +133,5 @@ import { AuthService } from '../../services/auth.service';
 })
 export class AdminLayoutComponent {
   readonly authService = inject(AuthService);
+  sidebarOpen = signal(false);
 }
