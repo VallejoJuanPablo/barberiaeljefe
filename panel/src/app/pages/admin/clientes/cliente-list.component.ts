@@ -40,16 +40,16 @@ import { Cliente } from '../../../models/cliente.model';
             class="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-400 pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:border-amber-500 transition-colors"
           />
         </div>
-        <div class="flex bg-gray-800 border border-gray-700 rounded-lg p-1 gap-1">
+        <div class="flex bg-gray-800 border border-gray-700 rounded-lg p-1 gap-1 flex-wrap">
           <button
-            (click)="filtroEstado.set('todos')"
+            (click)="cambiarFiltro('todos')"
             class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
             [class]="filtroEstado() === 'todos' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'"
           >
             Todos
           </button>
           <button
-            (click)="filtroEstado.set('activos')"
+            (click)="cambiarFiltro('activos')"
             class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
             [class]="filtroEstado() === 'activos' ? 'bg-green-900/60 text-green-400 border border-green-800' : 'text-gray-400 hover:text-white'"
           >
@@ -57,12 +57,22 @@ import { Cliente } from '../../../models/cliente.model';
             Activos
           </button>
           <button
-            (click)="filtroEstado.set('inactivos')"
+            (click)="cambiarFiltro('inactivos')"
             class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
             [class]="filtroEstado() === 'inactivos' ? 'bg-red-900/60 text-red-400 border border-red-800' : 'text-gray-400 hover:text-white'"
           >
             <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
             Inactivos
+          </button>
+          <button
+            (click)="cambiarFiltro('borrados')"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+            [class]="filtroEstado() === 'borrados' ? 'bg-gray-500/60 text-gray-200 border border-gray-500' : 'text-gray-400 hover:text-white'"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Borrados
           </button>
         </div>
       </div>
@@ -115,22 +125,13 @@ import { Cliente } from '../../../models/cliente.model';
                 }
               </div>
               <div class="flex items-center gap-2 pt-3 border-t border-gray-700">
-                <button
-                  (click)="mostrarQR(cliente.codigo)"
-                  class="flex items-center gap-1.5 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-medium rounded-lg transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm14 3h.01M17 14h3v3h-3v-3zm0 4h3v3h-3v-3zm-4 0h3v3h-3v-3zm-4-4h.01" />
-                  </svg>
-                  QR
-                </button>
-                @if (!cliente.membresia.activa) {
+                @if (filtroEstado() === 'borrados') {
                   <button
-                    (click)="renovar(cliente)"
-                    [disabled]="renovando() === cliente._id"
-                    class="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                    (click)="restaurar(cliente)"
+                    [disabled]="restaurando() === cliente._id"
+                    class="flex items-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-400 text-gray-900 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
                   >
-                    @if (renovando() === cliente._id) {
+                    @if (restaurando() === cliente._id) {
                       <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
@@ -140,26 +141,55 @@ import { Cliente } from '../../../models/cliente.model';
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
                     }
-                    Renovar
+                    Restaurar
+                  </button>
+                } @else {
+                  <button
+                    (click)="mostrarQR(cliente.codigo)"
+                    class="flex items-center gap-1.5 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-medium rounded-lg transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm14 3h.01M17 14h3v3h-3v-3zm0 4h3v3h-3v-3zm-4 0h3v3h-3v-3zm-4-4h.01" />
+                    </svg>
+                    QR
+                  </button>
+                  @if (!cliente.membresia.activa) {
+                    <button
+                      (click)="renovar(cliente)"
+                      [disabled]="renovando() === cliente._id"
+                      class="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      @if (renovando() === cliente._id) {
+                        <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                      } @else {
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      }
+                      Renovar
+                    </button>
+                  }
+                  <div class="flex-1"></div>
+                  <a
+                    [routerLink]="['/admin/clientes', cliente._id]"
+                    class="p-2 text-gray-400 hover:text-amber-400 hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </a>
+                  <button
+                    (click)="confirmarEliminar(cliente)"
+                    class="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                   </button>
                 }
-                <div class="flex-1"></div>
-                <a
-                  [routerLink]="['/admin/clientes', cliente._id]"
-                  class="p-2 text-gray-400 hover:text-amber-400 hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </a>
-                <button
-                  (click)="confirmarEliminar(cliente)"
-                  class="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
               </div>
             </div>
           } @empty {
@@ -227,14 +257,14 @@ import { Cliente } from '../../../models/cliente.model';
                     </td>
                     <td class="px-4 py-3 text-right">
                       <div class="flex items-center justify-end gap-2">
-                        @if (!cliente.membresia.activa) {
+                        @if (filtroEstado() === 'borrados') {
                           <button
-                            (click)="renovar(cliente)"
-                            [disabled]="renovando() === cliente._id"
-                            class="flex items-center gap-1 px-2.5 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
-                            title="Renovar 1 mes"
+                            (click)="restaurar(cliente)"
+                            [disabled]="restaurando() === cliente._id"
+                            class="flex items-center gap-1 px-2.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-900 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
+                            title="Restaurar cliente"
                           >
-                            @if (renovando() === cliente._id) {
+                            @if (restaurando() === cliente._id) {
                               <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
@@ -244,27 +274,48 @@ import { Cliente } from '../../../models/cliente.model';
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                               </svg>
                             }
-                            Renovar
+                            Restaurar
+                          </button>
+                        } @else {
+                          @if (!cliente.membresia.activa) {
+                            <button
+                              (click)="renovar(cliente)"
+                              [disabled]="renovando() === cliente._id"
+                              class="flex items-center gap-1 px-2.5 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+                              title="Renovar 1 mes"
+                            >
+                              @if (renovando() === cliente._id) {
+                                <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                              } @else {
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                              }
+                              Renovar
+                            </button>
+                          }
+                          <a
+                            [routerLink]="['/admin/clientes', cliente._id]"
+                            class="p-1.5 text-gray-400 hover:text-amber-400 hover:bg-gray-700 rounded transition-colors"
+                            title="Editar"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </a>
+                          <button
+                            (click)="confirmarEliminar(cliente)"
+                            class="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded transition-colors"
+                            title="Eliminar"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
                           </button>
                         }
-                        <a
-                          [routerLink]="['/admin/clientes', cliente._id]"
-                          class="p-1.5 text-gray-400 hover:text-amber-400 hover:bg-gray-700 rounded transition-colors"
-                          title="Editar"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </a>
-                        <button
-                          (click)="confirmarEliminar(cliente)"
-                          class="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded transition-colors"
-                          title="Eliminar"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
                       </div>
                     </td>
                   </tr>
@@ -297,7 +348,7 @@ import { Cliente } from '../../../models/cliente.model';
               <h3 class="text-lg font-semibold text-white">Eliminar cliente</h3>
             </div>
             <p class="text-gray-300 mb-6">
-              ¿Estás seguro que querés eliminar a <strong class="text-white">{{ clienteAEliminar()?.nombre }}</strong>? Esta acción no se puede deshacer.
+              ¿Estás seguro que querés eliminar a <strong class="text-white">{{ clienteAEliminar()?.nombre }}</strong>? Podés restaurarlo después desde la pestaña "Borrados".
             </p>
             <div class="flex gap-3">
               <button
@@ -374,12 +425,13 @@ export class ClienteListComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   busqueda = '';
-  filtroEstado = signal<'todos' | 'activos' | 'inactivos'>('todos');
+  filtroEstado = signal<'todos' | 'activos' | 'inactivos' | 'borrados'>('todos');
   clienteAEliminar = signal<Cliente | null>(null);
   eliminando = signal(false);
   qrCodigo = signal<string | null>(null);
   copiado = signal(false);
   renovando = signal<string | null>(null);
+  restaurando = signal<string | null>(null);
 
   clientesFiltrados = computed(() => {
     let lista = this.clientes();
@@ -397,10 +449,18 @@ export class ClienteListComponent implements OnInit {
     this.cargarClientes();
   }
 
+  cambiarFiltro(filtro: 'todos' | 'activos' | 'inactivos' | 'borrados') {
+    this.filtroEstado.set(filtro);
+    this.cargarClientes();
+  }
+
   cargarClientes() {
     this.loading.set(true);
     this.error.set(null);
-    this.clienteService.getAll().subscribe({
+    const obs = this.filtroEstado() === 'borrados'
+      ? this.clienteService.getDeleted()
+      : this.clienteService.getAll();
+    obs.subscribe({
       next: (data) => {
         this.clientes.set(data);
         this.loading.set(false);
@@ -505,6 +565,21 @@ export class ClienteListComponent implements OnInit {
         this.error.set('Error al eliminar el cliente. Intentá de nuevo.');
         this.eliminando.set(false);
         this.clienteAEliminar.set(null);
+      }
+    });
+  }
+
+  restaurar(cliente: Cliente) {
+    if (!cliente._id) return;
+    this.restaurando.set(cliente._id);
+    this.clienteService.restore(cliente._id).subscribe({
+      next: () => {
+        this.clientes.update(list => list.filter(c => c._id !== cliente._id));
+        this.restaurando.set(null);
+      },
+      error: () => {
+        this.error.set('Error al restaurar el cliente. Intentá de nuevo.');
+        this.restaurando.set(null);
       }
     });
   }

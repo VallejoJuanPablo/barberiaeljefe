@@ -1,9 +1,12 @@
 const Cliente = require('../models/Cliente');
 
-// GET /api/clientes — Obtener todos los clientes
+// GET /api/clientes — Obtener clientes (?deleted=true para ver borrados)
 const getClientes = async (req, res) => {
   try {
-    const clientes = await Cliente.find().sort({ createdAt: -1 });
+    const filtro = req.query.deleted === 'true'
+      ? { deletedAt: { $ne: null } }
+      : { deletedAt: null };
+    const clientes = await Cliente.find(filtro).sort({ createdAt: -1 });
     res.json(clientes);
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al obtener clientes', error: error.message });
@@ -67,10 +70,14 @@ const updateCliente = async (req, res) => {
   }
 };
 
-// DELETE /api/clientes/:id — Eliminar un cliente
+// DELETE /api/clientes/:id — Soft delete
 const deleteCliente = async (req, res) => {
   try {
-    const cliente = await Cliente.findByIdAndDelete(req.params.id);
+    const cliente = await Cliente.findByIdAndUpdate(
+      req.params.id,
+      { deletedAt: new Date() },
+      { new: true }
+    );
     if (!cliente) {
       return res.status(404).json({ mensaje: 'Cliente no encontrado' });
     }
@@ -80,10 +87,28 @@ const deleteCliente = async (req, res) => {
   }
 };
 
+// PUT /api/clientes/:id/restore — Restaurar cliente borrado
+const restoreCliente = async (req, res) => {
+  try {
+    const cliente = await Cliente.findByIdAndUpdate(
+      req.params.id,
+      { deletedAt: null },
+      { new: true }
+    );
+    if (!cliente) {
+      return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+    }
+    res.json(cliente);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al restaurar el cliente', error: error.message });
+  }
+};
+
 module.exports = {
   getClientes,
   getClienteById,
   createCliente,
   updateCliente,
-  deleteCliente
+  deleteCliente,
+  restoreCliente
 };

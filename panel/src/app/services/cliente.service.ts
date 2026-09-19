@@ -30,6 +30,14 @@ export class ClienteService {
     return this.http.delete<void>(`${this.baseUrl}/clientes/${id}`);
   }
 
+  getDeleted(): Observable<Cliente[]> {
+    return this.http.get<Cliente[]>(`${this.baseUrl}/clientes`, { params: { deleted: 'true' } });
+  }
+
+  restore(id: string): Observable<Cliente> {
+    return this.http.put<Cliente>(`${this.baseUrl}/clientes/${id}/restore`, {});
+  }
+
   checkMembresia(codigo: string): Observable<MembresiaCheck> {
     return this.http.get<MembresiaCheck>(`${this.baseUrl}/publico/membresia`, { params: { codigo } });
   }

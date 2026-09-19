@@ -5,7 +5,8 @@ const {
   getClienteById,
   createCliente,
   updateCliente,
-  deleteCliente
+  deleteCliente,
+  restoreCliente
 } = require('../controllers/clienteController');
 const ConsultaLog = require('../models/ConsultaLog');
 
@@ -14,6 +15,7 @@ router.get('/:id', getClienteById);
 router.post('/', createCliente);
 router.put('/:id', updateCliente);
 router.delete('/:id', deleteCliente);
+router.put('/:id/restore', restoreCliente);
 
 // GET /api/clientes/:id/logs — Historial de consultas de un cliente
 router.get('/:id/logs', async (req, res) => {

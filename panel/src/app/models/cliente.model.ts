@@ -10,6 +10,7 @@ export interface Cliente {
     fechaInicio: string;
     fechaFin: string;
   };
+  deletedAt?: string | null;
   createdAt?: string;
 }
 

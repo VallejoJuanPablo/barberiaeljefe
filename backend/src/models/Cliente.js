@@ -11,6 +11,7 @@ const clienteSchema = new mongoose.Schema({
     fechaInicio: { type: Date },
     fechaFin: { type: Date }
   },
+  deletedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now }
 });
 
