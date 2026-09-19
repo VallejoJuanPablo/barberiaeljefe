@@ -31,9 +31,14 @@ const createCliente = async (req, res) => {
     res.status(201).json(cliente);
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({ mensaje: 'El código ya existe', error: error.message });
+      const campo = Object.keys(error.keyPattern || {})[0] || 'codigo';
+      return res.status(400).json({ mensaje: `Ya existe un cliente con ese ${campo}` });
     }
-    res.status(500).json({ mensaje: 'Error al crear el cliente', error: error.message });
+    if (error.name === 'ValidationError') {
+      const campos = Object.values(error.errors).map(e => e.message);
+      return res.status(400).json({ mensaje: campos.join('. ') });
+    }
+    res.status(500).json({ mensaje: 'Error al crear el cliente. Intentá de nuevo.' });
   }
 };
 
@@ -50,7 +55,15 @@ const updateCliente = async (req, res) => {
     }
     res.json(cliente);
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al actualizar el cliente', error: error.message });
+    if (error.code === 11000) {
+      const campo = Object.keys(error.keyPattern || {})[0] || 'codigo';
+      return res.status(400).json({ mensaje: `Ya existe un cliente con ese ${campo}` });
+    }
+    if (error.name === 'ValidationError') {
+      const campos = Object.values(error.errors).map(e => e.message);
+      return res.status(400).json({ mensaje: campos.join('. ') });
+    }
+    res.status(500).json({ mensaje: 'Error al actualizar el cliente. Intentá de nuevo.' });
   }
 };
 

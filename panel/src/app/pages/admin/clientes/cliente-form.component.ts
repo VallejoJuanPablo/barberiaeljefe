@@ -299,8 +299,8 @@ export class ClienteFormComponent implements OnInit {
         });
         this.loadingInicial.set(false);
       },
-      error: () => {
-        this.error.set('No se pudo cargar el cliente.');
+      error: (err) => {
+        this.error.set(err.error?.mensaje || 'No se pudo cargar el cliente.');
         this.loadingInicial.set(false);
       }
     });
@@ -327,8 +327,9 @@ export class ClienteFormComponent implements OnInit {
         this.saving.set(false);
         this.router.navigate(['/admin/clientes']);
       },
-      error: () => {
-        this.error.set('Error al guardar. Verificá los datos e intentá de nuevo.');
+      error: (err) => {
+        const mensaje = err.error?.mensaje;
+        this.error.set(mensaje || 'Error al guardar. Verificá los datos e intentá de nuevo.');
         this.saving.set(false);
       }
     });
