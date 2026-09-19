@@ -114,13 +114,17 @@ import { Membresia } from '../../../models/cliente.model';
                 <label class="block text-sm font-medium text-gray-300 mb-1.5">Tipo de membresía <span class="text-red-400">*</span></label>
                 <select
                   formControlName="tipo"
-                  class="w-full bg-gray-700 border border-gray-600 text-white px-4 py-2.5 rounded-lg focus:outline-none focus:border-amber-500 transition-colors"
+                  class="w-full bg-gray-700 border text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
+                  [class]="inputClass('membresia.tipo')"
                 >
                   <option value="">Seleccionar...</option>
                   @for (m of tiposMembresia(); track m._id) {
                     <option [value]="m.nombre">{{ m.nombre }} — {{ formatPrecio(m.precio) }}/mes</option>
                   }
                 </select>
+                @if (campoInvalido('membresia.tipo')) {
+                  <p class="mt-1 text-xs text-red-400">Seleccioná un tipo de membresía</p>
+                }
               </div>
 
               <!-- Estado activa -->
@@ -153,16 +157,24 @@ import { Membresia } from '../../../models/cliente.model';
                   <input
                     type="date"
                     formControlName="fechaInicio"
-                    class="w-full bg-gray-700 border border-gray-600 text-white px-4 py-2.5 rounded-lg focus:outline-none focus:border-amber-500 transition-colors"
+                    class="w-full bg-gray-700 border text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
+                    [class]="inputClass('membresia.fechaInicio')"
                   />
+                  @if (campoInvalido('membresia.fechaInicio')) {
+                    <p class="mt-1 text-xs text-red-400">Ingresá la fecha de inicio</p>
+                  }
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1.5">Fecha de fin <span class="text-red-400">*</span></label>
                   <input
                     type="date"
                     formControlName="fechaFin"
-                    class="w-full bg-gray-700 border border-gray-600 text-white px-4 py-2.5 rounded-lg focus:outline-none focus:border-amber-500 transition-colors"
+                    class="w-full bg-gray-700 border text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
+                    [class]="inputClass('membresia.fechaFin')"
                   />
+                  @if (campoInvalido('membresia.fechaFin')) {
+                    <p class="mt-1 text-xs text-red-400">Ingresá la fecha de fin</p>
+                  }
                 </div>
               </div>
             </div>
@@ -309,6 +321,7 @@ export class ClienteFormComponent implements OnInit {
   guardar() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.error.set(this.mensajeValidacion());
       return;
     }
 
@@ -367,6 +380,18 @@ export class ClienteFormComponent implements OnInit {
 
   formatPrecio(precio: number): string {
     return '$' + precio.toLocaleString('es-AR');
+  }
+
+  private mensajeValidacion(): string {
+    const faltantes: string[] = [];
+    if (this.form.get('nombre')?.invalid) faltantes.push('nombre');
+    if (this.form.get('telefono')?.invalid) faltantes.push('teléfono');
+    if (this.form.get('email')?.invalid) faltantes.push('email');
+    if (this.form.get('membresia.tipo')?.invalid) faltantes.push('tipo de membresía');
+    if (this.form.get('membresia.fechaInicio')?.invalid) faltantes.push('fecha de inicio');
+    if (this.form.get('membresia.fechaFin')?.invalid) faltantes.push('fecha de fin');
+    if (faltantes.length === 0) return 'Revisá los campos del formulario.';
+    return 'Completá los campos: ' + faltantes.join(', ') + '.';
   }
 
   private formatDate(date: Date): string {

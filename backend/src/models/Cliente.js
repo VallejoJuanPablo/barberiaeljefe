@@ -17,8 +17,15 @@ const clienteSchema = new mongoose.Schema({
 // Auto-generate codigo if not provided
 clienteSchema.pre('save', async function() {
   if (!this.codigo) {
-    const count = await mongoose.model('Cliente').countDocuments();
-    this.codigo = 'BEJ-' + String(count + 1).padStart(4, '0');
+    const ultimo = await mongoose.model('Cliente')
+      .findOne({}, { codigo: 1 })
+      .sort({ codigo: -1 });
+    let siguiente = 1;
+    if (ultimo?.codigo) {
+      const num = parseInt(ultimo.codigo.replace('BEJ-', ''), 10);
+      if (!isNaN(num)) siguiente = num + 1;
+    }
+    this.codigo = 'BEJ-' + String(siguiente).padStart(4, '0');
   }
 });
 
