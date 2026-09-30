@@ -1,6 +1,7 @@
 const Cliente = require('../models/Cliente');
 const Membresia = require('../models/Membresia');
 const ConsultaLog = require('../models/ConsultaLog');
+const { generarTarjeta } = require('../services/tarjetaService');
 
 // GET /api/publico/membresia?codigo=BEJ-0001
 const checkMembresia = async (req, res) => {
@@ -121,4 +122,21 @@ const getBeneficiosRelampagoVigentes = async (req, res) => {
   }
 };
 
-module.exports = { checkMembresia, getPlanes, getMarcasPublicas, getBeneficiosRelampagoVigentes };
+// GET /api/publico/tarjeta/:codigo — Imagen de tarjeta con QR (generada al vuelo)
+const getTarjeta = async (req, res) => {
+  const codigo = (req.params.codigo || '').toUpperCase();
+
+  if (!/^BEJ-\d{4}$/.test(codigo)) {
+    return res.status(400).json({ mensaje: 'Código inválido. Formato esperado: BEJ-XXXX' });
+  }
+
+  try {
+    const filePath = await generarTarjeta(codigo);
+    res.set('Cache-Control', 'public, max-age=2592000'); // 30 días
+    res.sendFile(filePath);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al generar tarjeta', error: error.message });
+  }
+};
+
+module.exports = { checkMembresia, getPlanes, getMarcasPublicas, getBeneficiosRelampagoVigentes, getTarjeta };

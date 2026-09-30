@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { checkMembresia, getPlanes, getMarcasPublicas, getBeneficiosRelampagoVigentes } = require('../controllers/publicoController');
+const { checkMembresia, getPlanes, getMarcasPublicas, getBeneficiosRelampagoVigentes, getTarjeta } = require('../controllers/publicoController');
+
+// GET /api/publico/tarjeta/:codigo — Imagen de tarjeta con QR
+router.get('/tarjeta/:codigo', getTarjeta);
 
 // GET /api/publico/membresia?codigo=BEJ-0001
 router.get('/membresia', checkMembresia);

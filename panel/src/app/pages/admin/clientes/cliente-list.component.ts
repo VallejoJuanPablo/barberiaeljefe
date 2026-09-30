@@ -387,7 +387,7 @@ import { Cliente } from '../../../models/cliente.model';
             <div class="bg-white rounded-xl p-4 shadow-2xl">
               <img
                 #qrImg
-                [src]="'/img/frente_' + qrCodigo() + '.jpg'"
+                [src]="'/api/publico/tarjeta/' + qrCodigo()"
                 [alt]="'Tarjeta ' + qrCodigo()"
                 class="w-full rounded-lg"
                 crossorigin="anonymous"
@@ -507,7 +507,7 @@ export class ClienteListComponent implements OnInit {
       setTimeout(() => this.copiado.set(false), 2000);
     } catch {
       // Fallback: abrir en nueva pestaña para guardar manualmente
-      window.open('/img/frente_' + this.qrCodigo() + '.jpg', '_blank');
+      window.open('/api/publico/tarjeta/' + this.qrCodigo(), '_blank');
     }
   }
 
