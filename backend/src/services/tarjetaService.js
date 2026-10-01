@@ -38,7 +38,7 @@ async function generarTarjeta(codigo) {
   const textSvg = Buffer.from(
     `<svg width="${qrSize}" height="30">
       <text x="50%" y="20" text-anchor="middle"
-        font-family="Arial, sans-serif" font-size="${fontSize}"
+        font-family="DejaVu Sans, Arial, sans-serif" font-size="${fontSize}"
         fill="#D4BD6E" letter-spacing="2">${codigo}</text>
     </svg>`
   );
