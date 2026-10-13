@@ -85,6 +85,21 @@ export const routes: Routes = [
           import('./pages/admin/membresias/membresia-form.component').then(m => m.MembresiaFormComponent)
       },
       {
+        path: 'empresas',
+        loadComponent: () =>
+          import('./pages/admin/empresas/empresa-list.component').then(m => m.EmpresaListComponent)
+      },
+      {
+        path: 'empresas/nueva',
+        loadComponent: () =>
+          import('./pages/admin/empresas/empresa-form.component').then(m => m.EmpresaFormComponent)
+      },
+      {
+        path: 'empresas/:id',
+        loadComponent: () =>
+          import('./pages/admin/empresas/empresa-form.component').then(m => m.EmpresaFormComponent)
+      },
+      {
         path: 'beneficios-relampago',
         loadComponent: () =>
           import('./pages/admin/beneficios-relampago/beneficio-relampago-list.component').then(m => m.BeneficioRelampagoListComponent)

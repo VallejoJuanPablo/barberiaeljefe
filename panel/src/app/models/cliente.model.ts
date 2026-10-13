@@ -10,6 +10,7 @@ export interface Cliente {
     fechaInicio: string;
     fechaFin: string;
   };
+  empresaId?: string | null;
   deletedAt?: string | null;
   createdAt?: string;
 }
@@ -58,6 +59,22 @@ export interface BeneficioRelampago {
   fechaDesde: string;
   fechaHasta: string;
   activa: boolean;
+  createdAt?: string;
+}
+
+export interface Empresa {
+  _id?: string;
+  codigo: string;
+  nombre: string;
+  contacto: string;
+  telefono: string;
+  email: string;
+  pack: number;
+  precioMensual: number;
+  estado: 'activa' | 'suspendida' | 'baja';
+  fechaAlta: string;
+  ultimoPago: string | null;
+  asignados?: number;
   createdAt?: string;
 }
 

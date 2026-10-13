@@ -1,5 +1,6 @@
 const Cliente = require('../models/Cliente');
 const Membresia = require('../models/Membresia');
+const Empresa = require('../models/Empresa');
 const ConsultaLog = require('../models/ConsultaLog');
 const { generarTarjeta } = require('../services/tarjetaService');
 
@@ -19,10 +20,22 @@ const checkMembresia = async (req, res) => {
     }
 
     const ahora = new Date();
-    const membresiaVigente =
+    let membresiaVigente =
       cliente.membresia.activa &&
       cliente.membresia.fechaFin &&
       new Date(cliente.membresia.fechaFin) >= ahora;
+
+    // Si pertenece a una empresa, verificar que la empresa esté activa
+    let empresaInfo = null;
+    if (cliente.empresaId) {
+      const empresa = await Empresa.findById(cliente.empresaId);
+      if (empresa) {
+        empresaInfo = { nombre: empresa.nombre, codigo: empresa.codigo, estado: empresa.estado };
+        if (empresa.estado !== 'activa') {
+          membresiaVigente = false;
+        }
+      }
+    }
 
     // Buscar datos del plan de membresía con beneficios poblados
     let plan = null;
@@ -55,15 +68,24 @@ const checkMembresia = async (req, res) => {
       beneficiosAgrupados = Array.from(map.values());
     }
 
+    // Mensaje según el caso
+    let mensaje;
+    if (membresiaVigente) {
+      mensaje = 'Tu membresía está vigente. ¡Disfrutala!';
+    } else if (empresaInfo && empresaInfo.estado !== 'activa') {
+      mensaje = 'Tu membresía corporativa está suspendida. Contactá al responsable de tu empresa.';
+    } else {
+      mensaje = 'Tu membresía no está activa. Acercate a la barbería para renovarla.';
+    }
+
     res.charset = 'utf-8';
     res.json({
       activo: membresiaVigente,
       nombre: cliente.nombre,
       tipo: cliente.membresia.tipo,
       fechaFin: cliente.membresia.fechaFin || null,
-      mensaje: membresiaVigente
-        ? 'Tu membresía está vigente. ¡Disfrutala!'
-        : 'Tu membresía no está activa. Acercate a la barbería para renovarla.',
+      mensaje,
+      empresa: empresaInfo,
       plan: plan ? {
         precio: plan.precio,
         incluye: plan.incluye,
