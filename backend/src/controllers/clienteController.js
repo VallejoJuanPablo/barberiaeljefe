@@ -1,4 +1,5 @@
 const Cliente = require('../models/Cliente');
+const Empresa = require('../models/Empresa');
 
 // GET /api/clientes — Obtener clientes (?deleted=true para ver borrados)
 const getClientes = async (req, res) => {
@@ -29,6 +30,18 @@ const getClienteById = async (req, res) => {
 // POST /api/clientes — Crear un nuevo cliente
 const createCliente = async (req, res) => {
   try {
+    // Validar cupo de empresa si se asigna
+    if (req.body.empresaId) {
+      const empresa = await Empresa.findById(req.body.empresaId);
+      if (!empresa) {
+        return res.status(400).json({ mensaje: 'La empresa seleccionada no existe' });
+      }
+      const asignados = await Cliente.countDocuments({ empresaId: empresa._id, deletedAt: null });
+      if (asignados >= empresa.pack) {
+        return res.status(400).json({ mensaje: `La empresa ${empresa.nombre} ya tiene ${asignados}/${empresa.pack} empleados asignados. No hay cupo disponible.` });
+      }
+    }
+
     const cliente = new Cliente(req.body);
     await cliente.save();
     res.status(201).json(cliente);
@@ -48,6 +61,22 @@ const createCliente = async (req, res) => {
 // PUT /api/clientes/:id — Actualizar un cliente
 const updateCliente = async (req, res) => {
   try {
+    // Validar cupo si se cambia la empresa
+    if (req.body.empresaId) {
+      const clienteActual = await Cliente.findById(req.params.id);
+      const cambioEmpresa = !clienteActual?.empresaId || clienteActual.empresaId.toString() !== req.body.empresaId;
+      if (cambioEmpresa) {
+        const empresa = await Empresa.findById(req.body.empresaId);
+        if (!empresa) {
+          return res.status(400).json({ mensaje: 'La empresa seleccionada no existe' });
+        }
+        const asignados = await Cliente.countDocuments({ empresaId: empresa._id, deletedAt: null });
+        if (asignados >= empresa.pack) {
+          return res.status(400).json({ mensaje: `La empresa ${empresa.nombre} ya tiene ${asignados}/${empresa.pack} empleados asignados. No hay cupo disponible.` });
+        }
+      }
+    }
+
     const cliente = await Cliente.findByIdAndUpdate(
       req.params.id,
       req.body,

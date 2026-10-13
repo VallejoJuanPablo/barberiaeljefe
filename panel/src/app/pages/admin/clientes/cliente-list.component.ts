@@ -2,7 +2,8 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ClienteService } from '../../../services/cliente.service';
-import { Cliente } from '../../../models/cliente.model';
+import { EmpresaService } from '../../../services/empresa.service';
+import { Cliente, Empresa } from '../../../models/cliente.model';
 
 @Component({
   selector: 'app-cliente-list',
@@ -111,7 +112,7 @@ import { Cliente } from '../../../models/cliente.model';
                   </span>
                 }
               </div>
-              <div class="flex items-center gap-3 mb-3 text-sm">
+              <div class="flex items-center gap-3 mb-3 text-sm flex-wrap">
                 @if (cliente.telefono) {
                   <span class="text-gray-400">{{ cliente.telefono }}</span>
                 }
@@ -121,6 +122,11 @@ import { Cliente } from '../../../models/cliente.model';
                     [class]="badgeMembresia(cliente.membresia.tipo)"
                   >
                     {{ cliente.membresia.tipo }}
+                  </span>
+                }
+                @if (getNombreEmpresa(cliente.empresaId)) {
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/50 text-blue-300 border border-blue-800">
+                    🏢 {{ getNombreEmpresa(cliente.empresaId) }}
                   </span>
                 }
               </div>
@@ -212,6 +218,7 @@ import { Cliente } from '../../../models/cliente.model';
                   <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Nombre</th>
                   <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Teléfono</th>
                   <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Membresía</th>
+                  <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Empresa</th>
                   <th class="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
                   <th class="text-center px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">QR</th>
                   <th class="text-right px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>
@@ -230,6 +237,15 @@ import { Cliente } from '../../../models/cliente.model';
                       >
                         {{ cliente.membresia.tipo }}
                       </span>
+                    </td>
+                    <td class="px-4 py-3">
+                      @if (getNombreEmpresa(cliente.empresaId)) {
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/50 text-blue-300 border border-blue-800">
+                          {{ getNombreEmpresa(cliente.empresaId) }}
+                        </span>
+                      } @else {
+                        <span class="text-gray-600 text-xs">—</span>
+                      }
                     </td>
                     <td class="px-4 py-3">
                       @if (cliente.membresia.activa) {
@@ -321,7 +337,7 @@ import { Cliente } from '../../../models/cliente.model';
                   </tr>
                 } @empty {
                   <tr>
-                    <td colspan="7" class="px-4 py-12 text-center text-gray-500">
+                    <td colspan="8" class="px-4 py-12 text-center text-gray-500">
                       <div class="flex flex-col items-center gap-2">
                         <span class="text-4xl">✂️</span>
                         <p class="text-sm">No hay clientes registrados</p>
@@ -420,8 +436,10 @@ import { Cliente } from '../../../models/cliente.model';
 })
 export class ClienteListComponent implements OnInit {
   private readonly clienteService = inject(ClienteService);
+  private readonly empresaService = inject(EmpresaService);
 
   clientes = signal<Cliente[]>([]);
+  empresasMap = signal<Map<string, Empresa>>(new Map());
   loading = signal(true);
   error = signal<string | null>(null);
   busqueda = '';
@@ -447,6 +465,17 @@ export class ClienteListComponent implements OnInit {
 
   ngOnInit() {
     this.cargarClientes();
+    this.empresaService.getAll().subscribe(data => {
+      const map = new Map<string, Empresa>();
+      data.forEach(e => { if (e._id) map.set(e._id, e); });
+      this.empresasMap.set(map);
+    });
+  }
+
+  getNombreEmpresa(empresaId?: string | null): string | null {
+    if (!empresaId) return null;
+    const emp = this.empresasMap().get(empresaId);
+    return emp ? emp.nombre : null;
   }
 
   cambiarFiltro(filtro: 'todos' | 'activos' | 'inactivos' | 'borrados') {

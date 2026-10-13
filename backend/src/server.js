@@ -10,6 +10,7 @@ const membresiasRoutes = require('./routes/membresias');
 const beneficiosRoutes = require('./routes/beneficios');
 const marcasRoutes = require('./routes/marcas');
 const beneficiosRelampagoRoutes = require('./routes/beneficiosRelampago');
+const empresasRoutes = require('./routes/empresas');
 const publicoRoutes = require('./routes/publico');
 const authMiddleware = require('./middleware/auth');
 const { iniciarCronMembresias } = require('./jobs/desactivarMembresias');
@@ -39,6 +40,7 @@ app.use('/api/membresias', authMiddleware, membresiasRoutes);
 app.use('/api/beneficios', authMiddleware, beneficiosRoutes);
 app.use('/api/marcas', authMiddleware, marcasRoutes);
 app.use('/api/beneficios-relampago', authMiddleware, beneficiosRelampagoRoutes);
+app.use('/api/empresas', authMiddleware, empresasRoutes);
 
 // Health check
 app.get('/', (req, res) => {

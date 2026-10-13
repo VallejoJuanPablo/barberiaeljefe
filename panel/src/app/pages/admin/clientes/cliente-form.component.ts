@@ -3,7 +3,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClienteService } from '../../../services/cliente.service';
 import { MembresiaService } from '../../../services/membresia.service';
-import { Membresia } from '../../../models/cliente.model';
+import { EmpresaService } from '../../../services/empresa.service';
+import { Membresia, Empresa } from '../../../models/cliente.model';
 
 @Component({
   selector: 'app-cliente-form',
@@ -104,6 +105,26 @@ import { Membresia } from '../../../models/cliente.model';
                 }
               </div>
             </div>
+
+            <!-- Card: Empresa (opcional) -->
+            @if (empresas().length > 0) {
+              <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 space-y-4">
+                <h3 class="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-4">Empresa (opcional)</h3>
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-1.5">Asignar a empresa corporativa</label>
+                  <select
+                    formControlName="empresaId"
+                    class="w-full bg-gray-700 border border-gray-600 focus:border-amber-500 text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
+                  >
+                    <option value="">Sin empresa (individual)</option>
+                    @for (emp of empresas(); track emp._id) {
+                      <option [value]="emp._id">{{ emp.codigo }} — {{ emp.nombre }} ({{ emp.asignados || 0 }}/{{ emp.pack }})</option>
+                    }
+                  </select>
+                  <p class="mt-1 text-xs text-gray-500">Si asignás a una empresa, la membresía depende del pago corporativo</p>
+                </div>
+              </div>
+            }
 
             <!-- Card: Membresía -->
             <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 space-y-4" formGroupName="membresia">
@@ -247,6 +268,7 @@ import { Membresia } from '../../../models/cliente.model';
 export class ClienteFormComponent implements OnInit {
   private readonly clienteService = inject(ClienteService);
   private readonly membresiaService = inject(MembresiaService);
+  private readonly empresaService = inject(EmpresaService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -259,12 +281,14 @@ export class ClienteFormComponent implements OnInit {
   error = signal<string | null>(null);
   logs = signal<any[]>([]);
   tiposMembresia = signal<Membresia[]>([]);
+  empresas = signal<Empresa[]>([]);
 
   form: FormGroup = this.fb.group({
     codigo: [''],
     nombre: ['', Validators.required],
     telefono: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
+    empresaId: [''],
     membresia: this.fb.group({
       tipo: ['', Validators.required],
       activa: [true],
@@ -275,6 +299,7 @@ export class ClienteFormComponent implements OnInit {
 
   ngOnInit() {
     this.membresiaService.getAll().subscribe(data => this.tiposMembresia.set(data));
+    this.empresaService.getAll().subscribe(data => this.empresas.set(data.filter(e => e.estado === 'activa')));
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'nuevo') {
@@ -302,6 +327,7 @@ export class ClienteFormComponent implements OnInit {
           nombre: cliente.nombre,
           telefono: cliente.telefono,
           email: cliente.email,
+          empresaId: cliente.empresaId || '',
           membresia: {
             tipo: cliente.membresia.tipo,
             activa: cliente.membresia.activa,
@@ -328,7 +354,9 @@ export class ClienteFormComponent implements OnInit {
     this.saving.set(true);
     this.error.set(null);
 
-    const datos = this.form.value;
+    const datos = { ...this.form.value };
+    // Convertir empresaId vacío a null
+    if (!datos.empresaId) datos.empresaId = null;
     const id = this.clienteId();
 
     const obs = id
