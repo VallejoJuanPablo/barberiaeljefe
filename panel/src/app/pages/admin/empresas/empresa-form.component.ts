@@ -3,7 +3,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { EmpresaService } from '../../../services/empresa.service';
 import { ClienteService } from '../../../services/cliente.service';
-import { Cliente } from '../../../models/cliente.model';
+import { MembresiaService } from '../../../services/membresia.service';
+import { Cliente, Membresia } from '../../../models/cliente.model';
 
 @Component({
   selector: 'app-empresa-form',
@@ -98,6 +99,24 @@ import { Cliente } from '../../../models/cliente.model';
             <!-- Pack -->
             <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 space-y-4">
               <h3 class="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-4">Pack de membresías</h3>
+
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-300 mb-1.5">Tipo de membresía para los empleados <span class="text-red-400">*</span></label>
+                <select
+                  formControlName="membresiaId"
+                  class="w-full bg-gray-700 border text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
+                  [class]="inputClass('membresiaId')"
+                >
+                  <option value="">Seleccionar...</option>
+                  @for (m of tiposMembresia(); track m._id) {
+                    <option [value]="m._id">{{ m.nombre }} — {{ formatPrecio(m.precio) }}/mes individual</option>
+                  }
+                </select>
+                @if (campoInvalido('membresiaId')) {
+                  <p class="mt-1 text-xs text-red-400">Seleccioná el tipo de membresía</p>
+                }
+                <p class="mt-1 text-xs text-gray-500">Esta membresía se asigna automáticamente a los empleados de la empresa</p>
+              </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -202,6 +221,7 @@ import { Cliente } from '../../../models/cliente.model';
 export class EmpresaFormComponent implements OnInit {
   private readonly empresaService = inject(EmpresaService);
   private readonly clienteService = inject(ClienteService);
+  private readonly membresiaService = inject(MembresiaService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -212,17 +232,21 @@ export class EmpresaFormComponent implements OnInit {
   saving = signal(false);
   error = signal<string | null>(null);
   empleados = signal<Cliente[]>([]);
+  tiposMembresia = signal<Membresia[]>([]);
 
   form: FormGroup = this.fb.group({
     nombre: ['', Validators.required],
     contacto: ['', Validators.required],
     telefono: [''],
     email: [''],
+    membresiaId: ['', Validators.required],
     pack: [null, [Validators.required, Validators.min(1)]],
     precioMensual: [null, [Validators.required, Validators.min(0)]]
   });
 
   ngOnInit() {
+    this.membresiaService.getAll().subscribe(data => this.tiposMembresia.set(data));
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'nueva') {
       this.esEdicion = true;
@@ -235,11 +259,13 @@ export class EmpresaFormComponent implements OnInit {
     this.loadingInicial.set(true);
     this.empresaService.getById(id).subscribe({
       next: (empresa) => {
+        const memId = typeof empresa.membresiaId === 'object' ? empresa.membresiaId._id : empresa.membresiaId;
         this.form.patchValue({
           nombre: empresa.nombre,
           contacto: empresa.contacto,
           telefono: empresa.telefono,
           email: empresa.email,
+          membresiaId: memId || '',
           pack: empresa.pack,
           precioMensual: empresa.precioMensual
         });
@@ -302,5 +328,9 @@ export class EmpresaFormComponent implements OnInit {
     return this.campoInvalido(campo)
       ? 'border-red-500 focus:border-red-400'
       : 'border-gray-600 focus:border-amber-500';
+  }
+
+  formatPrecio(precio: number): string {
+    return '$' + precio.toLocaleString('es-AR');
   }
 }

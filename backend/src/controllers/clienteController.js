@@ -1,5 +1,6 @@
 const Cliente = require('../models/Cliente');
 const Empresa = require('../models/Empresa');
+const Membresia = require('../models/Membresia');
 
 // GET /api/clientes — Obtener clientes (?deleted=true para ver borrados)
 const getClientes = async (req, res) => {
@@ -32,13 +33,23 @@ const createCliente = async (req, res) => {
   try {
     // Validar cupo de empresa si se asigna
     if (req.body.empresaId) {
-      const empresa = await Empresa.findById(req.body.empresaId);
+      const empresa = await Empresa.findById(req.body.empresaId).populate('membresiaId');
       if (!empresa) {
         return res.status(400).json({ mensaje: 'La empresa seleccionada no existe' });
       }
       const asignados = await Cliente.countDocuments({ empresaId: empresa._id, deletedAt: null });
       if (asignados >= empresa.pack) {
         return res.status(400).json({ mensaje: `La empresa ${empresa.nombre} ya tiene ${asignados}/${empresa.pack} empleados asignados. No hay cupo disponible.` });
+      }
+      // Auto-asignar membresía de la empresa
+      if (empresa.membresiaId) {
+        const nombreMembresia = empresa.membresiaId.nombre || '';
+        req.body.membresia = {
+          activa: empresa.estado === 'activa',
+          tipo: nombreMembresia,
+          fechaInicio: new Date(),
+          fechaFin: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+        };
       }
     }
 
@@ -66,13 +77,23 @@ const updateCliente = async (req, res) => {
       const clienteActual = await Cliente.findById(req.params.id);
       const cambioEmpresa = !clienteActual?.empresaId || clienteActual.empresaId.toString() !== req.body.empresaId;
       if (cambioEmpresa) {
-        const empresa = await Empresa.findById(req.body.empresaId);
+        const empresa = await Empresa.findById(req.body.empresaId).populate('membresiaId');
         if (!empresa) {
           return res.status(400).json({ mensaje: 'La empresa seleccionada no existe' });
         }
         const asignados = await Cliente.countDocuments({ empresaId: empresa._id, deletedAt: null });
         if (asignados >= empresa.pack) {
           return res.status(400).json({ mensaje: `La empresa ${empresa.nombre} ya tiene ${asignados}/${empresa.pack} empleados asignados. No hay cupo disponible.` });
+        }
+        // Auto-asignar membresía de la empresa
+        if (empresa.membresiaId) {
+          const nombreMembresia = empresa.membresiaId.nombre || '';
+          req.body.membresia = {
+            activa: empresa.estado === 'activa',
+            tipo: nombreMembresia,
+            fechaInicio: new Date(),
+            fechaFin: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+          };
         }
       }
     }

@@ -69,6 +69,7 @@ export interface Empresa {
   contacto: string;
   telefono: string;
   email: string;
+  membresiaId: string | Membresia;
   pack: number;
   precioMensual: number;
   estado: 'activa' | 'suspendida' | 'baja';
