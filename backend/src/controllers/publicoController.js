@@ -20,21 +20,30 @@ const checkMembresia = async (req, res) => {
     }
 
     const ahora = new Date();
-    let membresiaVigente =
-      cliente.membresia.activa &&
-      cliente.membresia.fechaFin &&
-      new Date(cliente.membresia.fechaFin) >= ahora;
-
-    // Si pertenece a una empresa, verificar que la empresa esté activa
+    let membresiaVigente = false;
     let empresaInfo = null;
+    let esCorporativo = false;
+
     if (cliente.empresaId) {
-      const empresa = await Empresa.findById(cliente.empresaId);
+      // Cliente corporativo: el estado depende enteramente de la empresa
+      const empresa = await Empresa.findById(cliente.empresaId).populate('membresiaId');
       if (empresa) {
-        empresaInfo = { nombre: empresa.nombre, codigo: empresa.codigo, estado: empresa.estado };
-        if (empresa.estado !== 'activa') {
-          membresiaVigente = false;
-        }
+        esCorporativo = true;
+        const nombreMembresia = empresa.membresiaId?.nombre || cliente.membresia.tipo;
+        empresaInfo = {
+          nombre: empresa.nombre,
+          codigo: empresa.codigo,
+          estado: empresa.estado,
+          membresia: nombreMembresia
+        };
+        membresiaVigente = empresa.estado === 'activa';
       }
+    } else {
+      // Cliente individual: lógica original
+      membresiaVigente =
+        cliente.membresia.activa &&
+        cliente.membresia.fechaFin &&
+        new Date(cliente.membresia.fechaFin) >= ahora;
     }
 
     // Buscar datos del plan de membresía con beneficios poblados
@@ -70,10 +79,12 @@ const checkMembresia = async (req, res) => {
 
     // Mensaje según el caso
     let mensaje;
-    if (membresiaVigente) {
-      mensaje = 'Tu membresía está vigente. ¡Disfrutala!';
-    } else if (empresaInfo && empresaInfo.estado !== 'activa') {
+    if (esCorporativo && membresiaVigente) {
+      mensaje = 'Tu membresía corporativa está vigente. ¡Disfrutala!';
+    } else if (esCorporativo && !membresiaVigente) {
       mensaje = 'Tu membresía corporativa está suspendida. Contactá al responsable de tu empresa.';
+    } else if (membresiaVigente) {
+      mensaje = 'Tu membresía está vigente. ¡Disfrutala!';
     } else {
       mensaje = 'Tu membresía no está activa. Acercate a la barbería para renovarla.';
     }
