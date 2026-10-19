@@ -6,6 +6,7 @@ const empresaSchema = new mongoose.Schema({
   contacto: { type: String, required: true },
   telefono: { type: String, default: '' },
   email: { type: String, default: '' },
+  membresiaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membresia', required: true },
   pack: { type: Number, required: true, min: 1 },
   precioMensual: { type: Number, required: true, min: 0 },
   estado: { type: String, enum: ['activa', 'suspendida', 'baja'], default: 'activa' },

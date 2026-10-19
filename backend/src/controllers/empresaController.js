@@ -4,7 +4,7 @@ const Cliente = require('../models/Cliente');
 // GET /api/empresas
 const getEmpresas = async (req, res) => {
   try {
-    const empresas = await Empresa.find().sort({ createdAt: -1 });
+    const empresas = await Empresa.find().populate('membresiaId').sort({ createdAt: -1 });
 
     // Agregar conteo de empleados asignados a cada empresa
     const result = await Promise.all(
@@ -25,7 +25,7 @@ const getEmpresas = async (req, res) => {
 // GET /api/empresas/:id
 const getEmpresaById = async (req, res) => {
   try {
-    const empresa = await Empresa.findById(req.params.id);
+    const empresa = await Empresa.findById(req.params.id).populate('membresiaId');
     if (!empresa) {
       return res.status(404).json({ mensaje: 'Empresa no encontrada' });
     }

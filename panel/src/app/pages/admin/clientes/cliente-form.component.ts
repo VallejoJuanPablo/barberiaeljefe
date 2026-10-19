@@ -114,6 +114,7 @@ import { Membresia, Empresa } from '../../../models/cliente.model';
                   <label class="block text-sm font-medium text-gray-300 mb-1.5">Asignar a empresa corporativa</label>
                   <select
                     formControlName="empresaId"
+                    (change)="onEmpresaChange()"
                     class="w-full bg-gray-700 border border-gray-600 focus:border-amber-500 text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
                   >
                     <option value="">Sin empresa (individual)</option>
@@ -121,84 +122,102 @@ import { Membresia, Empresa } from '../../../models/cliente.model';
                       <option [value]="emp._id">{{ emp.codigo }} — {{ emp.nombre }} ({{ emp.asignados || 0 }}/{{ emp.pack }})</option>
                     }
                   </select>
-                  <p class="mt-1 text-xs text-gray-500">Si asignás a una empresa, la membresía depende del pago corporativo</p>
+                  <p class="mt-1 text-xs text-gray-500">Si asignás a una empresa, la membresía se asigna automáticamente</p>
                 </div>
               </div>
             }
 
-            <!-- Card: Membresía -->
-            <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 space-y-4" formGroupName="membresia">
-              <h3 class="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-4">Membresía</h3>
-
-              <!-- Tipo -->
-              <div>
-                <label class="block text-sm font-medium text-gray-300 mb-1.5">Tipo de membresía <span class="text-red-400">*</span></label>
-                <select
-                  formControlName="tipo"
-                  class="w-full bg-gray-700 border text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
-                  [class]="inputClass('membresia.tipo')"
-                >
-                  <option value="">Seleccionar...</option>
-                  @for (m of tiposMembresia(); track m._id) {
-                    <option [value]="m.nombre">{{ m.nombre }} — {{ formatPrecio(m.precio) }}/mes</option>
-                  }
-                </select>
-                @if (campoInvalido('membresia.tipo')) {
-                  <p class="mt-1 text-xs text-red-400">Seleccioná un tipo de membresía</p>
-                }
+            <!-- Card: Membresía corporativa (solo si tiene empresa) -->
+            @if (tieneEmpresa()) {
+              <div class="bg-gray-800 border border-blue-800/50 rounded-xl p-6">
+                <h3 class="text-sm font-semibold text-blue-400 uppercase tracking-wider mb-4">Membresía corporativa</h3>
+                <div class="flex items-center gap-3 bg-blue-900/20 rounded-lg p-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <p class="text-white text-sm font-medium">{{ nombreMembresiaEmpresa() }}</p>
+                    <p class="text-gray-400 text-xs mt-0.5">La membresía se asigna automáticamente según el plan de la empresa. El estado depende del pago corporativo.</p>
+                  </div>
+                </div>
               </div>
+            }
 
-              <!-- Estado activa -->
-              <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Estado</label>
-                <button
-                  type="button"
-                  (click)="toggleActiva()"
-                  class="flex items-center gap-3 group"
-                >
-                  <div
-                    class="relative w-11 h-6 rounded-full transition-colors duration-200"
-                    [class]="form.get('membresia.activa')?.value ? 'bg-amber-500' : 'bg-gray-600'"
+            <!-- Card: Membresía manual (solo si NO tiene empresa) -->
+            @if (!tieneEmpresa()) {
+              <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 space-y-4" formGroupName="membresia">
+                <h3 class="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-4">Membresía</h3>
+
+                <!-- Tipo -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-1.5">Tipo de membresía <span class="text-red-400">*</span></label>
+                  <select
+                    formControlName="tipo"
+                    class="w-full bg-gray-700 border text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
+                    [class]="inputClass('membresia.tipo')"
+                  >
+                    <option value="">Seleccionar...</option>
+                    @for (m of tiposMembresia(); track m._id) {
+                      <option [value]="m.nombre">{{ m.nombre }} — {{ formatPrecio(m.precio) }}/mes</option>
+                    }
+                  </select>
+                  @if (campoInvalido('membresia.tipo')) {
+                    <p class="mt-1 text-xs text-red-400">Seleccioná un tipo de membresía</p>
+                  }
+                </div>
+
+                <!-- Estado activa -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">Estado</label>
+                  <button
+                    type="button"
+                    (click)="toggleActiva()"
+                    class="flex items-center gap-3 group"
                   >
                     <div
-                      class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200"
-                      [class]="form.get('membresia.activa')?.value ? 'translate-x-5' : 'translate-x-0'"
-                    ></div>
-                  </div>
-                  <span class="text-sm" [class]="form.get('membresia.activa')?.value ? 'text-amber-400' : 'text-gray-400'">
-                    {{ form.get('membresia.activa')?.value ? 'Membresía activa' : 'Membresía inactiva' }}
-                  </span>
-                </button>
-              </div>
+                      class="relative w-11 h-6 rounded-full transition-colors duration-200"
+                      [class]="form.get('membresia.activa')?.value ? 'bg-amber-500' : 'bg-gray-600'"
+                    >
+                      <div
+                        class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200"
+                        [class]="form.get('membresia.activa')?.value ? 'translate-x-5' : 'translate-x-0'"
+                      ></div>
+                    </div>
+                    <span class="text-sm" [class]="form.get('membresia.activa')?.value ? 'text-amber-400' : 'text-gray-400'">
+                      {{ form.get('membresia.activa')?.value ? 'Membresía activa' : 'Membresía inactiva' }}
+                    </span>
+                  </button>
+                </div>
 
-              <!-- Fechas -->
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1.5">Fecha de inicio <span class="text-red-400">*</span></label>
-                  <input
-                    type="date"
-                    formControlName="fechaInicio"
-                    class="w-full bg-gray-700 border text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
-                    [class]="inputClass('membresia.fechaInicio')"
-                  />
-                  @if (campoInvalido('membresia.fechaInicio')) {
-                    <p class="mt-1 text-xs text-red-400">Ingresá la fecha de inicio</p>
-                  }
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1.5">Fecha de fin <span class="text-red-400">*</span></label>
-                  <input
-                    type="date"
-                    formControlName="fechaFin"
-                    class="w-full bg-gray-700 border text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
-                    [class]="inputClass('membresia.fechaFin')"
-                  />
-                  @if (campoInvalido('membresia.fechaFin')) {
-                    <p class="mt-1 text-xs text-red-400">Ingresá la fecha de fin</p>
-                  }
+                <!-- Fechas -->
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Fecha de inicio <span class="text-red-400">*</span></label>
+                    <input
+                      type="date"
+                      formControlName="fechaInicio"
+                      class="w-full bg-gray-700 border text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
+                      [class]="inputClass('membresia.fechaInicio')"
+                    />
+                    @if (campoInvalido('membresia.fechaInicio')) {
+                      <p class="mt-1 text-xs text-red-400">Ingresá la fecha de inicio</p>
+                    }
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1.5">Fecha de fin <span class="text-red-400">*</span></label>
+                    <input
+                      type="date"
+                      formControlName="fechaFin"
+                      class="w-full bg-gray-700 border text-white px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
+                      [class]="inputClass('membresia.fechaFin')"
+                    />
+                    @if (campoInvalido('membresia.fechaFin')) {
+                      <p class="mt-1 text-xs text-red-400">Ingresá la fecha de fin</p>
+                    }
+                  </div>
                 </div>
               </div>
-            </div>
+            }
 
             <!-- Historial de consultas -->
             @if (esEdicion && logs().length > 0) {
@@ -335,6 +354,7 @@ export class ClienteFormComponent implements OnInit {
             fechaFin: cliente.membresia.fechaFin?.slice(0, 10) ?? ''
           }
         });
+        this.onEmpresaChange();
         this.loadingInicial.set(false);
       },
       error: (err) => {
@@ -374,6 +394,45 @@ export class ClienteFormComponent implements OnInit {
         this.saving.set(false);
       }
     });
+  }
+
+  tieneEmpresa(): boolean {
+    return !!this.form.get('empresaId')?.value;
+  }
+
+  onEmpresaChange() {
+    const empresaId = this.form.get('empresaId')?.value;
+    const memTipo = this.form.get('membresia.tipo');
+    const memInicio = this.form.get('membresia.fechaInicio');
+    const memFin = this.form.get('membresia.fechaFin');
+
+    if (empresaId) {
+      // Empresa seleccionada: quitar validators de membresía
+      memTipo?.clearValidators();
+      memInicio?.clearValidators();
+      memFin?.clearValidators();
+    } else {
+      // Individual: restaurar validators
+      memTipo?.setValidators(Validators.required);
+      memInicio?.setValidators(Validators.required);
+      memFin?.setValidators(Validators.required);
+    }
+    memTipo?.updateValueAndValidity();
+    memInicio?.updateValueAndValidity();
+    memFin?.updateValueAndValidity();
+  }
+
+  nombreMembresiaEmpresa(): string {
+    const empresaId = this.form.get('empresaId')?.value;
+    if (!empresaId) return '';
+    const empresa = this.empresas().find(e => e._id === empresaId);
+    if (!empresa) return '';
+    const mem = empresa.membresiaId;
+    if (typeof mem === 'object' && mem?.nombre) return mem.nombre;
+    // Si no está populated, buscar en tiposMembresia
+    const memId = typeof mem === 'string' ? mem : '';
+    const tipo = this.tiposMembresia().find(m => m._id === memId);
+    return tipo?.nombre || 'Membresía corporativa';
   }
 
   toggleActiva() {
