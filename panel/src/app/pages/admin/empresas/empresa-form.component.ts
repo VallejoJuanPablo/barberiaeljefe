@@ -99,34 +99,46 @@ import { Cliente } from '../../../models/cliente.model';
             <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 space-y-4">
               <h3 class="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-4">Pack de membresías</h3>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-300 mb-3">Cantidad de membresías <span class="text-red-400">*</span></label>
-                <div class="grid grid-cols-4 gap-3">
-                  @for (p of packs; track p) {
-                    <button
-                      type="button"
-                      (click)="seleccionarPack(p)"
-                      class="py-3 rounded-xl text-center font-semibold transition-all border"
-                      [class]="form.get('pack')?.value === p
-                        ? 'bg-amber-500 border-amber-400 text-gray-900'
-                        : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500'"
-                    >
-                      {{ p }}
-                    </button>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-1.5">Cantidad de membresías <span class="text-red-400">*</span></label>
+                  <input
+                    type="number"
+                    formControlName="pack"
+                    min="1"
+                    placeholder="Ej: 30"
+                    class="w-full bg-gray-700 border text-white placeholder-gray-500 px-4 py-2.5 rounded-lg focus:outline-none transition-colors"
+                    [class]="inputClass('pack')"
+                  />
+                  @if (campoInvalido('pack')) {
+                    <p class="mt-1 text-xs text-red-400">Ingresá la cantidad de membresías</p>
                   }
                 </div>
-                @if (campoInvalido('pack')) {
-                  <p class="mt-2 text-xs text-red-400">Seleccioná un pack</p>
-                }
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-1.5">Monto mensual total <span class="text-red-400">*</span></label>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">$</span>
+                    <input
+                      type="number"
+                      formControlName="precioMensual"
+                      min="0"
+                      placeholder="Ej: 15000"
+                      class="w-full bg-gray-700 border text-white placeholder-gray-500 pl-8 pr-4 py-2.5 rounded-lg focus:outline-none transition-colors"
+                      [class]="inputClass('precioMensual')"
+                    />
+                  </div>
+                  @if (campoInvalido('precioMensual')) {
+                    <p class="mt-1 text-xs text-red-400">Ingresá el monto mensual</p>
+                  }
+                </div>
               </div>
 
-              @if (form.get('pack')?.value) {
+              @if (form.get('pack')?.value && form.get('precioMensual')?.value) {
                 <div class="bg-gray-700/50 rounded-lg p-4 mt-4">
                   <div class="flex items-center justify-between">
-                    <span class="text-sm text-gray-400">Precio mensual estimado</span>
-                    <span class="text-xl font-bold text-amber-400">{{ precioEstimado() }}</span>
+                    <span class="text-sm text-gray-400">Costo por membresía</span>
+                    <span class="text-lg font-bold text-amber-400">{{ costoPorMembresia() }}/mes</span>
                   </div>
-                  <p class="text-xs text-gray-500 mt-1">25% del precio individual por {{ form.get('pack')?.value }} membresías</p>
                 </div>
               }
             </div>
@@ -200,15 +212,14 @@ export class EmpresaFormComponent implements OnInit {
   saving = signal(false);
   error = signal<string | null>(null);
   empleados = signal<Cliente[]>([]);
-  packs = [10, 20, 30, 50];
-  precioBase = 2000;
 
   form: FormGroup = this.fb.group({
     nombre: ['', Validators.required],
     contacto: ['', Validators.required],
     telefono: [''],
     email: [''],
-    pack: [null, Validators.required]
+    pack: [null, [Validators.required, Validators.min(1)]],
+    precioMensual: [null, [Validators.required, Validators.min(0)]]
   });
 
   ngOnInit() {
@@ -229,7 +240,8 @@ export class EmpresaFormComponent implements OnInit {
           contacto: empresa.contacto,
           telefono: empresa.telefono,
           email: empresa.email,
-          pack: empresa.pack
+          pack: empresa.pack,
+          precioMensual: empresa.precioMensual
         });
         this.loadingInicial.set(false);
       },
@@ -273,16 +285,12 @@ export class EmpresaFormComponent implements OnInit {
     });
   }
 
-  seleccionarPack(pack: number) {
-    this.form.get('pack')?.setValue(pack);
-    this.form.get('pack')?.markAsTouched();
-  }
-
-  precioEstimado(): string {
+  costoPorMembresia(): string {
     const pack = this.form.get('pack')?.value;
-    if (!pack) return '$0';
-    const precio = pack * this.precioBase * 0.25;
-    return '$' + precio.toLocaleString('es-AR');
+    const precio = this.form.get('precioMensual')?.value;
+    if (!pack || !precio) return '$0';
+    const cpp = Math.round(precio / pack);
+    return '$' + cpp.toLocaleString('es-AR');
   }
 
   campoInvalido(campo: string): boolean {
