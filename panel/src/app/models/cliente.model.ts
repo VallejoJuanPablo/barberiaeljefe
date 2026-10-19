@@ -85,6 +85,12 @@ export interface MembresiaCheck {
   tipo: string;
   fechaFin: string;
   mensaje: string;
+  empresa: {
+    nombre: string;
+    codigo: string;
+    estado: string;
+    membresia: string;
+  } | null;
   plan: {
     precio: number;
     incluye: string[];

@@ -114,12 +114,31 @@ import { MembresiaCheck } from '../../models/cliente.model';
                 <h2 class="font-display text-2xl text-white mb-5">{{ resultado()!.nombre }}</h2>
 
                 <div class="space-y-3">
+                  <!-- Empresa corporativa -->
+                  @if (resultado()!.empresa) {
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm" style="color: rgba(255,255,255,0.35);">Empresa</span>
+                      <span class="text-sm font-medium text-white">{{ resultado()!.empresa!.nombre }}</span>
+                    </div>
+                    <div class="h-px" style="background: rgba(201,164,76,0.08);"></div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm" style="color: rgba(255,255,255,0.35);">Tipo</span>
+                      <span class="text-sm font-medium gold">
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs"
+                              style="background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.2); color: #a5b4fc;">
+                          Corporativa
+                        </span>
+                      </span>
+                    </div>
+                    <div class="h-px" style="background: rgba(201,164,76,0.08);"></div>
+                  }
+
                   <div class="flex items-center justify-between">
                     <span class="text-sm" style="color: rgba(255,255,255,0.35);">Plan</span>
                     <span class="text-sm font-semibold tracking-wider uppercase gold">{{ resultado()!.tipo }}</span>
                   </div>
 
-                  @if (resultado()!.plan) {
+                  @if (resultado()!.plan && !resultado()!.empresa) {
                     <div class="h-px" style="background: rgba(201,164,76,0.08);"></div>
                     <div class="flex items-center justify-between">
                       <span class="text-sm" style="color: rgba(255,255,255,0.35);">Precio</span>
@@ -127,7 +146,7 @@ import { MembresiaCheck } from '../../models/cliente.model';
                     </div>
                   }
 
-                  @if (resultado()!.activo && resultado()!.fechaFin) {
+                  @if (resultado()!.activo && resultado()!.fechaFin && !resultado()!.empresa) {
                     <div class="h-px" style="background: rgba(201,164,76,0.08);"></div>
                     <div class="flex items-center justify-between">
                       <span class="text-sm" style="color: rgba(255,255,255,0.35);">Válida hasta</span>
