@@ -532,9 +532,8 @@ export class ClienteListComponent implements OnInit {
   }
 
   whatsappUrl(telefono: string): string {
-    // Limpiar todo excepto dígitos
     const num = telefono.replace(/\D/g, '');
-    return 'https://wa.me/' + num;
+    return 'whatsapp://send?phone=' + num;
   }
 
   badgeMembresia(tipo: string): string {
