@@ -44,6 +44,10 @@ export class AuthService {
     return data ? JSON.parse(data) : null;
   }
 
+  cambiarPassword(passwordActual: string, passwordNueva: string): Observable<{ mensaje: string }> {
+    return this.http.put<{ mensaje: string }>(`${this.baseUrl}/auth/cambiar-password`, { passwordActual, passwordNueva });
+  }
+
   private hasToken(): boolean {
     return !!localStorage.getItem(this.TOKEN_KEY);
   }
