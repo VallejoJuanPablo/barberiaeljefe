@@ -112,6 +112,17 @@ import { AuthService } from '../../services/auth.service';
         <!-- Footer -->
         <div class="p-4 border-t border-gray-700 space-y-2">
           <p class="text-xs text-gray-500 text-center">{{ authService.getUsuario()?.nombre }}</p>
+          <a
+            routerLink="/admin/cambiar-password"
+            routerLinkActive="text-amber-400"
+            (click)="sidebarOpen.set(false)"
+            class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+            Cambiar contraseña
+          </a>
           <button
             (click)="authService.logout()"
             class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-gray-400 hover:bg-red-500/10 hover:text-red-400 transition-colors text-sm"

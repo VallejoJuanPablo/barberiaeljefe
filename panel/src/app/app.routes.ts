@@ -100,6 +100,11 @@ export const routes: Routes = [
           import('./pages/admin/empresas/empresa-form.component').then(m => m.EmpresaFormComponent)
       },
       {
+        path: 'cambiar-password',
+        loadComponent: () =>
+          import('./pages/admin/cambiar-password.component').then(m => m.CambiarPasswordComponent)
+      },
+      {
         path: 'beneficios-relampago',
         loadComponent: () =>
           import('./pages/admin/beneficios-relampago/beneficio-relampago-list.component').then(m => m.BeneficioRelampagoListComponent)
