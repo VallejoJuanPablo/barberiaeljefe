@@ -27,7 +27,7 @@ import { AuthService } from '../../services/auth.service';
               name="email"
               required
               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-amber-500"
-              placeholder="admin@eljefenegocios.com.ar"
+              placeholder=""
             />
           </div>
 
@@ -39,7 +39,7 @@ import { AuthService } from '../../services/auth.service';
               name="password"
               required
               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-amber-500"
-              placeholder="••••••••"
+              placeholder=""
             />
           </div>
 
